@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+                <!-- android:background="#5599DD" -->
+    
+        <!-- header goes here -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Group"
+                android:textSize="30sp" />
+            <Spinner
+                android:id="@+id/group_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            
+            
+        </LinearLayout>
+        <!-- Body goes here -->
+        <ScrollView
+            android:id="@+id/flashcard_group_scroll_view"
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/flashcard_group_scroll_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <!-- The question and answer are added here -->
+
+            </LinearLayout>
+        </ScrollView>
+        <!-- footer goes here -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/bt_fg_show_answer"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Show Answer"
+                    android:textSize="36sp"
+                    android:visibility="visible" >
+                </Button>
+                
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+                    
+                    <ImageButton
+                        android:id="@+id/bt_fg_correct"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="50"
+                        android:src="@drawable/answer_tick" >
+                    </ImageButton>
+                    
+                    <ImageButton
+                        android:id="@+id/bt_fg_incorrect"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="50"
+                        android:src="@drawable/answer_cross" >
+                    </ImageButton>
+                    
+                </LinearLayout>
+                
+            </RelativeLayout>
+     </LinearLayout>
+</LinearLayout>

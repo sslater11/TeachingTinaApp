@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+                <!-- android:background="#5599DD" -->
+    
+       <!-- Body goes here -->
+        <ScrollView
+            android:id="@+id/flashcard_scroll_view"
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/flashcard_scroll_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <!-- The question and answer are added here -->
+
+            </LinearLayout>
+        </ScrollView>
+        <!-- footer goes here -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/bt_show_answer"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Show Answer"
+                    android:textSize="36sp"
+                    android:typeface="sans"
+                    android:visibility="visible"></Button>
+                
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+                    
+                    <ImageButton
+                        android:id="@+id/bt_correct"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="50"
+                        android:src="@drawable/answer_tick" >
+                    </ImageButton>
+                    
+                    <ImageButton
+                        android:id="@+id/bt_incorrect"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="50"
+                        android:src="@drawable/answer_cross" >
+                    </ImageButton>
+                    
+                </LinearLayout>
+                
+            </RelativeLayout>
+     </LinearLayout>
+</LinearLayout>

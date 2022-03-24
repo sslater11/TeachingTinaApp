@@ -1,0 +1,179 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:1-90:12
+	package
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:3:5-40
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+	android:versionName
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:5:5-30
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:4:5-28
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:7:5-81
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:7:22-78
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:8:5-80
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:8:22-77
+uses-permission#android.permission.MANAGE_EXTERNAL_STORAGE
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:9:5-82
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:9:22-79
+application
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:11:5-88:19
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:14:9-41
+	android:icon
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:13:9-45
+	android:allowBackup
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:12:9-35
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:15:9-40
+activity#com.example.tinasnewmaths.MenuActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:16:10-26:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:20:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:19:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:18:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:17:13-41
+intent-filter#action:name:android.intent.action.MAIN+action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:21:13-25:29
+action#android.intent.action.MAIN
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:17-69
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:24:17-77
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:24:27-74
+activity#com.example.tinasnewmaths.MathsActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:27:10-36:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:31:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:30:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:29:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:28:13-42
+intent-filter#action:name:com.example.tinasnewmaths.MATHSACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:32:13-35:29
+action#com.example.tinasnewmaths.MATHSACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:33:17-82
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:33:25-79
+category#android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+activity#com.example.tinasnewmaths.FlashcardActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:37:9-46:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:41:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:40:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:39:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:38:13-46
+intent-filter#action:name:com.example.tinasnewmaths.FLASHCARDACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:42:13-45:29
+action#com.example.tinasnewmaths.FLASHCARDACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:43:17-86
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:43:25-83
+activity#com.example.tinasnewmaths.FlashcardGroupActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:47:9-56:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:51:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:50:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:49:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:48:13-51
+intent-filter#action:name:com.example.tinasnewmaths.FLASHCARDGROUPACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:52:13-55:29
+action#com.example.tinasnewmaths.FLASHCARDGROUPACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:53:17-91
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:53:25-88
+activity#com.example.tinasnewmaths.KeyboardActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:57:9-66:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:61:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:60:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:59:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:58:13-45
+intent-filter#action:name:com.example.tinasnewmaths.KEYBOARDACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:62:13-65:29
+action#com.example.tinasnewmaths.KEYBOARDACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:63:17-85
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:63:25-82
+activity#com.example.tinasnewmaths.SettingsActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:67:17-76:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:71:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:70:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:69:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:68:13-45
+intent-filter#action:name:com.example.tinasnewmaths.SETTINGSACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:72:13-75:29
+action#com.example.tinasnewmaths.SETTINGSACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:73:17-85
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:73:25-82
+activity#com.example.tinasnewmaths.FinishedActivity
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:77:9-86:20
+	android:screenOrientation
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:81:13-49
+	android:label
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:80:13-45
+	android:theme
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:79:13-72
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:78:13-45
+intent-filter#action:name:com.example.tinasnewmaths.FINISHEDACTIVITY+category:name:android.intent.category.DEFAULT
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:82:13-85:29
+action#com.example.tinasnewmaths.FINISHEDACTIVITY
+ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:83:17-85
+	android:name
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:83:25-82
+uses-sdk
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		ADDED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+		INJECTED from /home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml

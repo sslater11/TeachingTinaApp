@@ -1,0 +1,4 @@
+#Tue Mar 01 19:19:27 GMT 2022
+base.0=/home/simon/MyStuff/Android Development/TinasNewMaths/build/intermediates/dex/debug/mergeDexDebug/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

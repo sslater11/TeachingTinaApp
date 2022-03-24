@@ -1,0 +1,142 @@
+e01/02/2022
+As of today, my codebase is still fragmented, even though I was supposed to condense it all into just one project.
+
+A quick refresher for myself:
+I moved the database management to LibTeachingTinaDatabaseManagerv2 in the eclipse folder.
+I worked on updating it and now need to merge it with this android version.
+I can either copy the files, or link the library.
+I might copy the files as that'd be easier to manage, because I only want one version of this program for Tina. That being said, Tina's reading lesson creator uses the library, so ultimately that should be used, but for now it'd just be easier to copy the files, so do that.
+The android app should be the whole program, there's no real need for a PC version as android does everything I want and need, and it looks a lot more polished than the PC version.
+
+
+My steps to get this up and running so far.
+------------------------------------------
+[done: 01/02/2022] Mark each todo-list item off in order with the [done: date] tag, and this app will finally get made!
+
+[done: 01/02/2022] Load the app, see how it works
+
+[done: 01/02/2022] Look at the current database format, and see how it's different from the old one.
+
+[done: 01/02/2022] Backup the old database management files in a directory called old_database_management
+
+[done: 01/02/2022] Copy the LibTeachingTinaDatabaseManagerv2 files into this project
+
+[done: 01/02/2022] Fix any issues that occur in the database management files
+[done: 01/02/2022]	 Fix all the errors java threw us over using the library code.
+
+[done: 01/02/2022]	 Almost there - Almost got the library 100% working for TeachingTinaPC, Tinas's Reading Lesson Creator, and TeachingTinaAndroid.
+[done: 01/02/2022]	 Get the app to find database files, because now it's saying it can't find any, when before it worked perfectly.
+[done: 01/02/2022]	 	CardDBManager's scanDirectory() method just needed updating, luckily I already had the code there for it, so it was easy!
+
+[done: 04/02/2022] Find all of Tina's and my flashcard databases and fix them so that they work with the new database manager.
+[done: 04/02/2022] 	We probably just have to remove the reaction speed and target reaction speed columns as I think I took those out of the new database. I never used them, so that might be all we have to do.
+[done: 04/02/2022] 	Run the program and get these things working
+[done: 04/02/2022] 		Tina's maths deck
+[done: 04/02/2022] 		My sheet music flashcards
+
+
+[done: 11/02/22] currently need to make the button listener work for clicking to enter a single letter to act as a shitty keyboard.
+[done: 11/02/22] The Listener doesn't work on the letters of the current word.
+
+
+[done: 11/02/22] Give the text spelling view a larger font
+[done: 11/02/22] Add a clear button too
+[done: 12/02/22] Highlight the background of each letter that's been spelt correctly.
+[done: 12/02/22] 	We need to make a Spannable object which lets us set the background colour of each letter individually
+[done: 12/02/22] 	Show the answer in red if they type the answer wrong.
+[done: 12/02/22] 	User's answer will be black text with light green background
+[done: 12/02/22] 	User's incorrectly entered letters will turn red.
+[done: 12/02/22] 	User's spelling hint letter colour should be a light grey.
+[done: 12/02/22] 		Add an if is_spelling_hint_enabled test to display the remaining letters in grey.
+[done: 12/02/22] 			Don't show any letters of the hint if the user has typed an incorrect letter.
+
+currently editing ReadingLessonDeck in tinasnewmaths in the library, so copy the new library over to the official libteachingtinadbmanager folder
+
+Edit tina's reading lesson creator to make it make the new database lines.
+
+
+
+Display the image for the word
+	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
+
+
+Display the image for the word
+	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
+	I think we should have every word added to the database twice.
+		once for the reading
+		once for the spelling.
+		This makes sense as they're both separate flashcards.
+
+-----\# This is the layout of the words.
+     |	# sounds
+     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:wa.mp3>
+     |	
+     |	# words
+     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:cat.jpg>	<audio:cat.mp3>
+     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:cat.jpg>	<audio:cat.mp3>
+     |	
+     |	# sentence
+     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:Reading Lesson 0001 - Sentence.mp3>
+----/
+
+// How the layout will be used.
+The program will look through the flashcard database line by line.
+The flashcards are grouped in lessons, but we will not necessarily load just from one lesson. We load flashcards that are next needing a review.
+The lesson grouping of the flashcards is more to handle the user's current reading level.
+If they are up to a certain level, they will know all the words before, so we can easily see how large their vocabulary is.
+
+Play the audio file.
+	Allow for multiple audio files, so one will say "spell cat", and the other say "Spell the word cat. The cat meows. Spell cat".
+
+Add a button to show the hint.
+
+Fix the fact that the maximum study session doesn't seem to be working.
+	I think the review date in the text file is what holds the amount of reviews a day.
+	I need to read my code to refresh myself on how that works.
+		I'm thinking I should update a stats file for each database.
+		And in each deck folder, have a stats folder to hold the stats fr each day.
+		
+Work on teaching Tina how to read, write the necessary steps for this
+	Look in the project for anything I've wrote about teaching Tina how to read.
+	Look at Tina's reading lesson creator in the eclipse folder, as that will create the lesson files required for her.
+	Make a new Activity or something for displaying the words.
+		It will show the word "ball", and she will have to say "ball" out loud, and when shown the answer the app will say "ball" and show a picture of a ball.
+		The reverse of that is it should show a picture of a ball, and she will have to spell it using letters on the screen.
+			If she is struggling, show a hint of the word.
+			We can show a hint by having the text on the screen, but really faint, then it could get fainter with time.
+
+Rename the app TeachingTina
+
+Update the DeckSettings so that I actually understand what all the settings do, and update the SettingsActivity so it can change all of the settings.
+Maybe change the deck settings over to use Java's Properties class.
+
+Make a Read a Long feature, so it will highlight words as they are spoken on the audio.
+	I have already wrote out a basic implementation that works here.
+	/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
+
+Fix the libteachingtinadbmanager CardDBManager scanDirectory() method
+	The method will check if we're on android or windows and will then scan the directory, but the android part imports android's Environment class, and that won't work on any PC version, so it's now probably broken for the PC versions.
+	The solution is to just get the directory and pass the scanDirectory() method that.
+	I think if we overload it and pass a File argument which contain's the location in android?
+	Either way, android will probably fuck it up with it's shitty file access later on in life, so that's why I can't be arsed faffing around with it right now.
+	say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
+
+Download some FOSS pictures for the celebration images.
+Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images.
+
+Upload app to github
+
+Record my voice for making lesson 1 of Tina's reading deck.
+Setup audio recording with Hannah so she can make more lessons.
+Find that list of letter pairs that I made years ago, where I went through the whole dictionary to find each different sound each letter pair can make.
+
+Add a daily card count on the main menu screen.
+	Have a total count for each deck, displayed like anki, with new cards and reviews.
+	Have a total count underneath each deck.
+	Remember that tina has to study each deck x times as that's the only way to learn more than 3 cards. e.g. she learns 3 cards, then loads the deck again to load 3 more, and that's her daily limit reached.
+
+Add a statistics tracker to tina's app.
+	Log how much time she spends in the app a day
+	Time per deck
+	Time per flashcard
+	Each day's total studied card count.

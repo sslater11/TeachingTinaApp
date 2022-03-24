@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+
+                <!-- android:background="#5599DD" -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Button" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Button" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User's typed word goes here." />
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/answer_cross" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+            <Button
+                android:id="@+id/bLetter1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="a" />
+
+            <Button
+                android:id="@+id/bLetter2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="b" />
+
+            <Button
+                android:id="@+id/bLetter3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="c" />
+
+            <Button
+                android:id="@+id/bLetter4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="d" />
+
+            <Button
+                android:id="@+id/bLetter5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="e" />
+
+            <Button
+                android:id="@+id/bLetter6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="f" />
+            
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <Button
+                android:id="@+id/bLetter7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="g" />
+
+            <Button
+                android:id="@+id/bLetter8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="h" />
+
+            <Button
+                android:id="@+id/bLetter9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="i" />
+
+            <Button
+                android:id="@+id/bLetter10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="j" />
+
+            <Button
+                android:id="@+id/bLetter11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="k" />
+
+            <Button
+                android:id="@+id/bLetter12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="l" />
+        </LinearLayout>
+
+    </LinearLayout>
+    
+</LinearLayout>

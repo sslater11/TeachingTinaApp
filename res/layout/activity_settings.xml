@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+                <!-- android:background="#5599DD" -->
+    
+       <!-- Body goes here -->
+        <ScrollView
+            android:id="@+id/flashcard_scroll_view"
+            android:layout_weight="1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/flashcard_scroll_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/textViewiiiii1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="@string/deck_gui_type_prompt"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
+                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/deck_gui_type_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Spinner
+                    android:id="@+id/deck_gui"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" 
+                    android:prompt="@string/deck_gui_type_prompt" />
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="@string/card_limit_prompt"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
+                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/card_limit_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                <Spinner
+                    android:id="@+id/card_limit_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/card_limit_prompt" />
+                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="@string/fail_limit_prompt"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
+                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fail_limit_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                
+                <Spinner
+                    android:id="@+id/fail_limit_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/fail_limit_prompt" />
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="@string/success_limit_prompt"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
+                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/success_limit_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                
+                <Spinner
+                    android:id="@+id/success_limit_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/success_limit_prompt" />
+                                
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:text="@string/are_cards_removable_prompt"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textStyle="bold" />
+                
+                <CheckBox
+                    android:id="@+id/chk_are_cards_removable"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chk_are_cards_removable" />
+                
+                <TextView
+                    android:id="@+id/txt_is_group_mode"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/is_group_mode_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                
+                <CheckBox
+                    android:id="@+id/chk_is_group_mode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chk_is_group_mode" />
+                
+                <TextView
+                    android:id="@+id/txt_is_group_review_date"
+                    android:layout_gravity="center"
+                    android:gravity="left"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/is_group_review_date_comment"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                
+                <CheckBox
+                    android:id="@+id/chk_is_group_review_date"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chk_is_group_review_date" />
+
+            </LinearLayout>
+        </ScrollView>
+        <!-- footer goes here -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/bt_save_settings"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:textSize="36sp"
+                    android:visibility="visible" >
+                </Button>
+                
+            </RelativeLayout>
+     </LinearLayout>
+</LinearLayout>

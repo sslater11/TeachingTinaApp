@@ -1,0 +1,185 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.tinasnewmaths"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="13"
+8-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+9        android:targetSdkVersion="30" />
+9-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+11-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:7:5-81
+11-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:7:22-78
+12    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+12-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:8:5-80
+12-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:8:22-77
+13    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+13-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:9:5-82
+13-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:9:22-79
+14
+15    <application
+15-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:11:5-88:19
+16        android:allowBackup="true"
+16-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:12:9-35
+17        android:icon="@drawable/ic_launcher"
+17-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:13:9-45
+18        android:label="@string/app_name"
+18-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:14:9-41
+19        android:theme="@style/AppTheme" >
+19-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:15:9-40
+20        <activity
+20-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:16:10-26:20
+21            android:name="com.example.tinasnewmaths.MenuActivity"
+21-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:17:13-41
+22            android:label="@string/app_name"
+22-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:19:13-45
+23            android:screenOrientation="portrait"
+23-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:20:13-49
+24            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+24-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:18:13-72
+25            <intent-filter>
+25-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:21:13-25:29
+26                <action android:name="android.intent.action.MAIN" />
+26-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:17-69
+26-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:25-66
+27                <action android:name="android.intent.action.MAIN" />
+27-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:17-69
+27-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:22:25-66
+28
+29                <category android:name="android.intent.category.LAUNCHER" />
+29-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:24:17-77
+29-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:24:27-74
+30            </intent-filter>
+31        </activity>
+32        <activity
+32-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:27:10-36:20
+33            android:name="com.example.tinasnewmaths.MathsActivity"
+33-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:28:13-42
+34            android:label="@string/app_name"
+34-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:30:13-45
+35            android:screenOrientation="portrait"
+35-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:31:13-49
+36            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+36-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:29:13-72
+37            <intent-filter>
+37-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:32:13-35:29
+38                <action android:name="com.example.tinasnewmaths.MATHSACTIVITY" />
+38-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:33:17-82
+38-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:33:25-79
+39
+40                <category android:name="android.intent.category.DEFAULT" />
+40-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+40-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+41            </intent-filter>
+42        </activity>
+43        <activity
+43-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:37:9-46:20
+44            android:name="com.example.tinasnewmaths.FlashcardActivity"
+44-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:38:13-46
+45            android:label="@string/app_name"
+45-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:40:13-45
+46            android:screenOrientation="portrait"
+46-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:41:13-49
+47            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+47-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:39:13-72
+48            <intent-filter>
+48-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:42:13-45:29
+49                <action android:name="com.example.tinasnewmaths.FLASHCARDACTIVITY" />
+49-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:43:17-86
+49-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:43:25-83
+50
+51                <category android:name="android.intent.category.DEFAULT" />
+51-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+51-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+52            </intent-filter>
+53        </activity>
+54        <activity
+54-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:47:9-56:20
+55            android:name="com.example.tinasnewmaths.FlashcardGroupActivity"
+55-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:48:13-51
+56            android:label="@string/app_name"
+56-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:50:13-45
+57            android:screenOrientation="portrait"
+57-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:51:13-49
+58            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+58-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:49:13-72
+59            <intent-filter>
+59-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:52:13-55:29
+60                <action android:name="com.example.tinasnewmaths.FLASHCARDGROUPACTIVITY" />
+60-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:53:17-91
+60-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:53:25-88
+61
+62                <category android:name="android.intent.category.DEFAULT" />
+62-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+62-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+63            </intent-filter>
+64        </activity>
+65        <activity
+65-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:57:9-66:20
+66            android:name="com.example.tinasnewmaths.KeyboardActivity"
+66-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:58:13-45
+67            android:label="@string/app_name"
+67-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:60:13-45
+68            android:screenOrientation="portrait"
+68-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:61:13-49
+69            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+69-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:59:13-72
+70            <intent-filter>
+70-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:62:13-65:29
+71                <action android:name="com.example.tinasnewmaths.KEYBOARDACTIVITY" />
+71-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:63:17-85
+71-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:63:25-82
+72
+73                <category android:name="android.intent.category.DEFAULT" />
+73-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+73-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+74            </intent-filter>
+75        </activity>
+76        <activity
+76-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:67:17-76:20
+77            android:name="com.example.tinasnewmaths.SettingsActivity"
+77-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:68:13-45
+78            android:label="@string/app_name"
+78-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:70:13-45
+79            android:screenOrientation="portrait"
+79-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:71:13-49
+80            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+80-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:69:13-72
+81            <intent-filter>
+81-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:72:13-75:29
+82                <action android:name="com.example.tinasnewmaths.SETTINGSACTIVITY" />
+82-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:73:17-85
+82-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:73:25-82
+83
+84                <category android:name="android.intent.category.DEFAULT" />
+84-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+84-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+85            </intent-filter>
+86        </activity>
+87        <activity
+87-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:77:9-86:20
+88            android:name="com.example.tinasnewmaths.FinishedActivity"
+88-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:78:13-45
+89            android:label="@string/app_name"
+89-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:80:13-45
+90            android:screenOrientation="portrait"
+90-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:81:13-49
+91            android:theme="@android:style/Theme.Holo.Light.NoActionBar" >
+91-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:79:13-72
+92            <intent-filter>
+92-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:82:13-85:29
+93                <action android:name="com.example.tinasnewmaths.FINISHEDACTIVITY" />
+93-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:83:17-85
+93-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:83:25-82
+94
+95                <category android:name="android.intent.category.DEFAULT" />
+95-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:17-76
+95-->/home/simon/MyStuff/Android Development/TinasNewMaths/AndroidManifest.xml:34:27-73
+96            </intent-filter>
+97        </activity>
+98    </application>
+99
+100</manifest>
