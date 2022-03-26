@@ -43,9 +43,9 @@ class MenuButtonOnClickListener implements View.OnClickListener {
 	
 	@Override
 	public void onClick(View v) {
-            // Perform action on click
+        // Perform action on click
 		studyDeck();
-        }
+    }
 
 	
 	Deck getDeck() {
@@ -273,14 +273,14 @@ public class MenuActivity extends Activity {
 					} else if( db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_KEYBOARD ) {
 						d = new KeyboardDeck       ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
 					} else if( db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_READING_AND_SPELLING) {
-						d = new FlashcardGroupDeck ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
+						d = new NewReadingLessonDeck ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
 					} else {
 						// This should never happen.
 						System.out.println("Error: deck gui type is wrong.");
 						d = null;
 					}
-					
-					db_deck.add(d);
+
+					db_deck.add( d );
 					// Set the onClickListener for just the enabled buttons
 					bArr.get(i).setOnClickListener( new MenuButtonOnClickListener(db_deck.get(i), MenuActivity.this) );
 					bArr.get(i).setTextSize(25);

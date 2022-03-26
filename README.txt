@@ -52,13 +52,26 @@ My steps to get this up and running so far.
 
 currently editing ReadingLessonDeck in tinasnewmaths in the library, so copy the new library over to the official libteachingtinadbmanager folder
 
+
+--
+25/3/22
+[done: 26/3/22] Made Tina's app read and display the flashcards for the spelling mode.
+
+
+Currently rewriting the ReadingLessonDeck in ReadingAndSpellingActivity.java, because it was easier to make it there.
+There's about 5 different versions of the code that reads the new database line, so I'm trying to just make a final verson,
+then I can delete all the others as they're just not necessary.
+
+The code to make a reading/spelling database,
+and the code to read and display the reading/spelling database. Those 2 pieces should just work as they are, and delete all the extra fluff code.
+
+Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
+Then make it all a git project too.
+
+We need it to be able to create a DB line, and to read in from a database too.
+	See the reading lesson file on my android phone to see the new database file layout.
+
 Edit tina's reading lesson creator to make it make the new database lines.
-
-
-
-Display the image for the word
-	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
-
 
 Display the image for the word
 	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
@@ -69,14 +82,14 @@ Display the image for the word
 
 -----\# This is the layout of the words.
      |	# sounds
-     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:wa.mp3>
+     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:"wa.mp3">
      |	
      |	# words
-     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:cat.jpg>	<audio:cat.mp3>
-     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:cat.jpg>	<audio:cat.mp3>
+     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
+     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
      |	
      |	# sentence
-     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:Reading Lesson 0001 - Sentence.mp3>
+     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:"Reading Lesson 0001 - Sentence.mp3">
 ----/
 
 // How the layout will be used.
@@ -115,10 +128,6 @@ Make a Read a Long feature, so it will highlight words as they are spoken on the
 	/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
 
 Fix the libteachingtinadbmanager CardDBManager scanDirectory() method
-	The method will check if we're on android or windows and will then scan the directory, but the android part imports android's Environment class, and that won't work on any PC version, so it's now probably broken for the PC versions.
-	The solution is to just get the directory and pass the scanDirectory() method that.
-	I think if we overload it and pass a File argument which contain's the location in android?
-	Either way, android will probably fuck it up with it's shitty file access later on in life, so that's why I can't be arsed faffing around with it right now.
 	say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
 
 Download some FOSS pictures for the celebration images.

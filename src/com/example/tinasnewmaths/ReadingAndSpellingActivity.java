@@ -29,10 +29,14 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import libteachingtinadbmanager.Card;
+import libteachingtinadbmanager.CardDBManager;
 import libteachingtinadbmanager.CardDBTagManager;
+import libteachingtinadbmanager.DeckSettings;
 
 public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     protected String typed_string = "";
@@ -44,9 +48,20 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     boolean is_spelling_hint_enabled = false;
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
+    NewReadingLessonDeck reading_spelling_deck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String str_db_file = getIntent().getStringExtra("deck_file_path");
+        db_file         = new File( str_db_file );
+        db_config_file  = new File( getIntent().getStringExtra("deck_settings_file_path") );
+        db_media_folder = new File( str_db_file.replace(".txt", "") );
+
+        settings = CardDBManager.getConfig(db_config_file);
+        group_names = CardDBManager.readDBGetGroupNames(db_file, settings);
+        System.out.println(group_names);
+        ArrayList<Card> tmp_deck = CardDBManager.readDBGetGroup(db_file, settings, group_names.get(0));
+        reading_spelling_deck = new NewReadingLessonDeck( tmp_deck, db_file, settings);
         setContentView(R.layout.activity_reading_and_spelling);
         // Create the answer feedback tick and cross image.
         this.image_tick_or_cross = (ImageView) findViewById(R.id.imageTickOrCrossReading);
@@ -69,9 +84,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         this.txtTyped = new TextView(this );
         this.txtTyped.setTextSize( font_size );
         this.txtTyped.setGravity( Gravity.CENTER_HORIZONTAL);
+
+        // We are calling this after setting up the extra objects as we need some to be defined for the super.onCreate() method to run successfully.
         super.onCreate( savedInstanceState );
 
-
+        this.bt_show_answer.setText( "Check Answer" );
 
     }
 
@@ -142,6 +159,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         } else {
             // It's spelling mode, so add the components in the right order.
 
+            super.AddContent( list );
             // Make an array list for the audio buttons and the show spelling hint button.
             
         }
@@ -154,20 +172,21 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         displayUserInput();
     }
 
+    @Override
     public void DisplayQuestion() {
         font_size = DEFAULT_FONT_SIZE * 2;
 
         if( deck.getCurrentCard().group.getGroupName().compareTo("Words") == 0 ) {
             if( is_reading_mode ) {
                 // Display just the word on the screen.
-                AddContent( deck.getQuestion() );
+                AddContent( reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ) );
             } else {
                 // Spelling mode.
                 // It's spelling mode, so we need to completely change the layout to spelling mode.
                 spelling_buttons = new ArrayList<Button>();
 
                 // Get every letter in the word and make a button for it.
-                String word = deck.getQuestion().get(0);
+                String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
                 for( int i = 0; i < word.length(); i++ ) {
                     char letter = word.charAt(i);
 
@@ -200,20 +219,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 Collections.shuffle( spelling_buttons );
 
-
                 // Create the grid for the letter buttons.
                 int column = 3;
                 int row = (int) Math.ceil( (double)spelling_buttons.size() / (double)column );
                 row += 1; // Increment so we have an extra row for the clear button to go in.
-                TableLayout table_layout = new TableLayout( this );
-
-
-
-
-
-
-
-
+                TableLayout letters_table_layout = new TableLayout( this );
 
                 // Finally add the buttons.
                 TableRow tr = new TableRow(this );
@@ -221,14 +231,14 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                     spelling_buttons.get(i).setGravity( Gravity.CENTER );
                     tr.addView( spelling_buttons.get(i) );
                     if( (i != 0) && ((i+1) % column == 0) ) {
-                        table_layout.addView( tr );
+                        letters_table_layout.addView( tr );
                         tr = new TableRow( this );
                     }
                     //grid_layout.addView(spelling_buttons.get(i));
                 }
 
                 // Add the clear button to the last row of the grid, and make it span all the columns
-                //table_layout.setStretchAllColumns(false);
+                //letters_table_layout.setStretchAllColumns(false);
 
                 // Setup the parameters to make the clear button span the columns
                 TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
@@ -236,25 +246,27 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 tr = new TableRow( this );
                 tr.addView( clear_user_input, row_layout_parameters );
-                table_layout.addView( tr );
+                letters_table_layout.addView( tr );
 
 
                 // Center the grid into the middle of the scroll view.
                 LinearLayout.LayoutParams linear_layout_parameters = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 linear_layout_parameters.gravity = Gravity.CENTER;
-                table_layout.setLayoutParams( linear_layout_parameters );
+                letters_table_layout.setLayoutParams( linear_layout_parameters );
 
                 // Add the other components
+                AddContent( reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() ) );
+                AddContent( reading_spelling_deck.getCardImage( reading_spelling_deck.getCurrentCard() ) );
 
 
                 // Add all the components in the desired order.
 
                 scroll_layout.setGravity( Gravity.CENTER_HORIZONTAL );
                 scroll_layout.addView( this.btn_spelling_hint );
-                AddContent( deck.getQuestion() );
+                AddContent( reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ) );
                 scroll_layout.addView( this.image_tick_or_cross );
                 scroll_layout.addView( this.txtTyped );
-                scroll_layout.addView( table_layout );
+                scroll_layout.addView( letters_table_layout );
             }
         }
     }
@@ -281,7 +293,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 */
     public void ShowAnswerPressed() {
         String user_input = getTypedString().toLowerCase();
-        String word = deck.getQuestion().get(0).toLowerCase();
+        String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0).toLowerCase();
         if( user_input.compareToIgnoreCase( word ) == 0 ) {
             // Answer is correct
             ImageThread img_t = new ImageThread(this, true);
@@ -289,29 +301,32 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
             if( is_spelling_hint_enabled ) {
                 // Mark it as wrong, so they have to attempt it again without the spelling hint.
-                deck.nextQuestion(false, false);
+                reading_spelling_deck.nextQuestion(false, false);
             }
             else {
                 // Since they didn't see a hint, mark it as correct.
-                deck.nextQuestion(true, false);
+                reading_spelling_deck.nextQuestion(true, false);
             }
             is_spelling_hint_enabled = false;
 
         } else {
             // Answer is wrong.
             ImageThread img_t = new ImageThread(this, false);
-            deck.nextQuestion(false, true);
+            reading_spelling_deck.nextQuestion(false, true);
             img_t.start();
             is_spelling_hint_enabled = true;
         }
         NextQuestion();
-    }
-    public void NextQuestion() {
-        super.NextQuestion();
-
         setTypedString("");
         displayUserInput();
     }
+
+    //public void NextQuestion() {
+    //    super.NextQuestion();
+
+    //    setTypedString("");
+    //    displayUserInput();
+    //}
     public boolean isLetterInButtonArray( ArrayList<Button> letter_buttons, char letter) {
         for( Button b : letter_buttons ) {
             if (b.getText().toString().compareToIgnoreCase("" + letter) == 0) {
@@ -351,7 +366,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
    */
     public void displayUserInput() {
         String user_input = getTypedString();
-        String word = deck.getQuestion().get(0);
+        String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         boolean keep_going = true;
@@ -427,7 +442,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         public boolean isLetterCorrect() {
             String typed_word = getTypedString();
-            String answer_word = deck.getQuestion().get(0);
+            String answer_word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
 
             System.out.println( typed_word );
             // If the typed word is smaller, cut the answer word to size
@@ -456,4 +471,81 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             displayUserInput();
         }
     }
+}
+
+/**
+ * Extends FlashcardGroupDeck and adds some methods to get the question from the flashcard.
+ * It's different, because the flashcard format has been changed.
+ * Here's an example of the new DB File Layout.
+ *     #spelling/reading	word/text	audio	image
+ *     #15/02/2022	1.4	19:40:56	3	#spelling#	dog	<audio:spell-dog.mp3><audio:spell-dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
+ *     #15/02/2022	1.4	19:40:56	3	#reading#	dog	<audio:dog.mp3><audio:dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
+ *
+ *     Group	Words	15/02/2020	2.744	19:40:56	1
+ *     15/02/2022	1.4	19:40:56	3	#spelling#	dog	<audio:spell-dog.mp3><audio:spell-dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
+ *     15/02/2022	1.4	19:40:56	3	#reading#	dog	<audio:dog.mp3><audio:dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
+ *
+ * The line is split to this order - spelling/reading	word/text	audio	image
+ */
+class NewReadingLessonDeck extends FlashcardGroupDeck {
+    NewReadingLessonDeck(ArrayList<Card> d, File deck_file_path, DeckSettings s) {
+        super(d, deck_file_path, s);
+    }
+
+    public static String READING_MODE  = "#READING#";
+    public static String SPELLING_MODE = "#SPELLING#";
+    public static String SENTENCE_MODE = "#SENTENCE#";
+
+    final static int INDEX_CARD_MODE = 0;
+    final static int INDEX_TEXT      = 1;
+    final static int INDEX_IMAGE     = 2;
+    final static int INDEX_AUDIO     = 3;
+
+    public static ArrayList<String> getCardText( Card c ) {
+        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_TEXT) );
+        return list;
+    }
+    public static ArrayList<String> getCardImage( Card c ) {
+        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_IMAGE) );
+        return list;
+    }
+    public static ArrayList<String> getCardAudio( Card c ) {
+        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_AUDIO) );
+        return list;
+    }
+    public static boolean is_card_reading_mode( Card c) {
+        String current_mode = c.getContent( 0 );
+        if( current_mode.compareToIgnoreCase( READING_MODE ) == 0 ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public static boolean is_card_spelling_mode( Card c) {
+        String current_mode = c.getContent( INDEX_CARD_MODE );
+        if( current_mode.compareToIgnoreCase( SPELLING_MODE ) == 0 ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public static boolean is_card_sentence_mode( Card c) {
+        String current_mode = c.getContent( INDEX_CARD_MODE  );
+        if( current_mode.compareToIgnoreCase( SENTENCE_MODE ) == 0 ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Implement these 2 methods, but we should never use them.
+    @Override
+    public ArrayList<String> getQuestion() {
+        return null;
+    }
+    @Override
+    public ArrayList<String> getAnswer() {
+        return null;
+    }
+
 }
