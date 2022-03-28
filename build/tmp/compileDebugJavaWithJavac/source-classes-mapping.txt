@@ -1,33 +1,43 @@
-com/example/tinasnewmaths/KeyboardActivity.java
- com.example.tinasnewmaths.KeyboardActivity
- com.example.tinasnewmaths.KeyboardDeck
-libteachingtinadbmanager/SentenceAnalyzer.java
- libteachingtinadbmanager.SentenceAnalyzer
 com/example/tinasnewmaths/FlashcardGroupActivity.java
  com.example.tinasnewmaths.FlashcardGroupActivity
  com.example.tinasnewmaths.FlashcardGroupActivity$1
  com.example.tinasnewmaths.FlashcardGroupActivity$2
  com.example.tinasnewmaths.FlashcardGroupActivity$3
  com.example.tinasnewmaths.FlashcardGroupActivity$4
- com.example.tinasnewmaths.FlashcardGroupDeck
-com/example/tinasnewmaths/MenuActivity.java
- com.example.tinasnewmaths.MenuActivity
- com.example.tinasnewmaths.MenuButtonOnClickListener
-com/example/tinasnewmaths/ReadingAndSpellingActivity.java
- com.example.tinasnewmaths.ReadingAndSpellingActivity
- com.example.tinasnewmaths.ReadingAndSpellingActivity$ClearUserInputListener
- com.example.tinasnewmaths.ReadingAndSpellingActivity$LetterListener
- com.example.tinasnewmaths.ReadingAndSpellingActivity$ShowUserSpellingHint
- com.example.tinasnewmaths.ReadingAndSpellingActivity$SpellingButton
+libteachingtinadbmanager/Deck.java
+ libteachingtinadbmanager.Deck
+ libteachingtinadbmanager.MyDate
+com/example/tinasnewmaths/IntervalLoader.java
+ com.example.tinasnewmaths.IntervalLoader
 libteachingtinadbmanager/CardDBTagManager.java
  libteachingtinadbmanager.CardDBTagManager
-libteachingtinadbmanager/FlashcardDeck.java
- libteachingtinadbmanager.FlashcardDeck
-libteachingtinadbmanager/ReadingLessonData.java
- libteachingtinadbmanager.ReadingLessonData
 com/example/tinasnewmaths/FinishedActivity.java
  com.example.tinasnewmaths.FinishedActivity
  com.example.tinasnewmaths.FinishedActivity$1
+libteachingtinadbmanager/ReadingLessonCreator.java
+ libteachingtinadbmanager.ReadingLessonCreator
+libteachingtinadbmanager/CardsGroup.java
+ libteachingtinadbmanager.CardsGroup
+com/example/tinasnewmaths/FlashcardActivity.java
+ com.example.tinasnewmaths.FlashcardActivity
+ com.example.tinasnewmaths.FlashcardActivity$1
+ com.example.tinasnewmaths.FlashcardActivity$2
+ com.example.tinasnewmaths.FlashcardActivity$3
+ com.example.tinasnewmaths.MyAudioButton
+libteachingtinadbmanager/ReadingLessonDeck.java
+ libteachingtinadbmanager.ReadingLessonDeck
+libteachingtinadbmanager/FlashcardGroupDeck.java
+ libteachingtinadbmanager.FlashcardGroupDeck
+com/example/tinasnewmaths/FlashcardBaseActivity.java
+ com.example.tinasnewmaths.FlashcardBaseActivity
+ com.example.tinasnewmaths.FlashcardBaseActivity$1
+com/example/tinasnewmaths/KeyboardActivity.java
+ com.example.tinasnewmaths.KeyboardActivity
+ com.example.tinasnewmaths.KeyboardDeck
+libteachingtinadbmanager/SentenceAnalyzer.java
+ libteachingtinadbmanager.SentenceAnalyzer
+libteachingtinadbmanager/FlashcardDeck.java
+ libteachingtinadbmanager.FlashcardDeck
 com/example/tinasnewmaths/ImageThread.java
  com.example.tinasnewmaths.ImageThread
  com.example.tinasnewmaths.ImageThread$1
@@ -39,25 +49,15 @@ com/example/tinasnewmaths/SettingsActivity.java
  com.example.tinasnewmaths.SettingsActivity$2
 libteachingtinadbmanager/Card.java
  libteachingtinadbmanager.Card
-libteachingtinadbmanager/CardsGroup.java
- libteachingtinadbmanager.CardsGroup
 com/example/tinasnewmaths/BuildConfig.java
  com.example.tinasnewmaths.BuildConfig
 libteachingtinadbmanager/MathsDeck.java
  libteachingtinadbmanager.MathsDeck
 libteachingtinadbmanager/DeckSettings.java
  libteachingtinadbmanager.DeckSettings
-com/example/tinasnewmaths/FlashcardActivity.java
- com.example.tinasnewmaths.FlashcardActivity
- com.example.tinasnewmaths.FlashcardActivity$1
- com.example.tinasnewmaths.FlashcardActivity$2
- com.example.tinasnewmaths.FlashcardActivity$3
- com.example.tinasnewmaths.MyAudioButton
 libteachingtinadbmanager/CardDBManager.java
  libteachingtinadbmanager.CardDBManager
  libteachingtinadbmanager.CardDBManager$1
- libteachingtinadbmanager.ReadingLessonDBManager
- libteachingtinadbmanager.ReadingLessonDeck
 com/example/tinasnewmaths/MathsActivity.java
  com.example.tinasnewmaths.MathsActivity
  com.example.tinasnewmaths.MathsActivity$1
@@ -75,11 +75,12 @@ com/example/tinasnewmaths/MathsActivity.java
  com.example.tinasnewmaths.MathsDeck
 libteachingtinadbmanager/TextEditorDBManager.java
  libteachingtinadbmanager.TextEditorDBManager
-com/example/tinasnewmaths/IntervalLoader.java
- com.example.tinasnewmaths.IntervalLoader
-com/example/tinasnewmaths/FlashcardBaseActivity.java
- com.example.tinasnewmaths.FlashcardBaseActivity
- com.example.tinasnewmaths.FlashcardBaseActivity$1
-libteachingtinadbmanager/Deck.java
- libteachingtinadbmanager.Deck
- libteachingtinadbmanager.MyDate
+com/example/tinasnewmaths/MenuActivity.java
+ com.example.tinasnewmaths.MenuActivity
+ com.example.tinasnewmaths.MenuButtonOnClickListener
+com/example/tinasnewmaths/ReadingAndSpellingActivity.java
+ com.example.tinasnewmaths.ReadingAndSpellingActivity
+ com.example.tinasnewmaths.ReadingAndSpellingActivity$ClearUserInputListener
+ com.example.tinasnewmaths.ReadingAndSpellingActivity$LetterListener
+ com.example.tinasnewmaths.ReadingAndSpellingActivity$ShowUserSpellingHint
+ com.example.tinasnewmaths.ReadingAndSpellingActivity$SpellingButton

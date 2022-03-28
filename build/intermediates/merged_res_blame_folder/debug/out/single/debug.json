@@ -128,6 +128,10 @@
         "source": "/home/simon/MyStuff/Android Development/TinasNewMaths/res/drawable-hdpi/ic_launcher.png"
     },
     {
+        "merged": "/home/simon/MyStuff/Android Development/TinasNewMaths/build/intermediates/merged_res/debug/drawable_answer_tick_small.png.flat",
+        "source": "/home/simon/MyStuff/Android Development/TinasNewMaths/res/drawable/answer_tick_small.png"
+    },
+    {
         "merged": "/home/simon/MyStuff/Android Development/TinasNewMaths/build/intermediates/merged_res/debug/layout_activity_flashcard.xml.flat",
         "source": "/home/simon/MyStuff/Android Development/TinasNewMaths/res/layout/activity_flashcard.xml"
     },

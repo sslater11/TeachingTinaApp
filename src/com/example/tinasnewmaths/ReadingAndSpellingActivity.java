@@ -29,6 +29,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.plattysoft.leonids.ParticleSystem;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -297,8 +299,19 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0).toLowerCase();
         if( user_input.compareToIgnoreCase( word ) == 0 ) {
             // Answer is correct
+            // Display a confirmation tick by using my ImageThread.
             ImageThread img_t = new ImageThread(this, true);
             img_t.start();
+
+            // Explosion of ticks celebration.
+            // Fucking love this, major thanks to the Leonids library!
+            int num_of_particles = 10000;
+            int time_to_live = 10000;
+            new ParticleSystem(this, num_of_particles, R.drawable.answer_tick_small, time_to_live)
+                    .setSpeedRange(0.20f, 1.5f)
+                    .setScaleRange(0.10f, 1f)
+                    .oneShot(bt_show_answer, num_of_particles);
+
 
             if( is_spelling_hint_enabled ) {
                 // Mark it as wrong, so they have to attempt it again without the spelling hint.

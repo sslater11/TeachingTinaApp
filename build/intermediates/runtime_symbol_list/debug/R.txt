@@ -5,6 +5,7 @@ int dimen calctextsize 0x7f020002
 int drawable answer_cross 0x7f030000
 int drawable answer_empty 0x7f030001
 int drawable answer_tick 0x7f030002
+int drawable answer_tick_small 0x7f030012
 int drawable horizontal_line 0x7f030003
 int drawable ic_action_play 0x7f030004
 int drawable ic_launcher 0x7f030005

@@ -50,47 +50,35 @@ My steps to get this up and running so far.
 [done: 12/02/22] 		Add an if is_spelling_hint_enabled test to display the remaining letters in grey.
 [done: 12/02/22] 			Don't show any letters of the hint if the user has typed an incorrect letter.
 
-currently editing ReadingLessonDeck in tinasnewmaths in the library, so copy the new library over to the official libteachingtinadbmanager folder
-
-
---
-25/3/22
 [done: 26/3/22] Made Tina's app read and display the flashcards for the spelling mode.
 
-
-Currently rewriting the ReadingLessonDeck in ReadingAndSpellingActivity.java, because it was easier to make it there.
-There's about 5 different versions of the code that reads the new database line, so I'm trying to just make a final verson,
-then I can delete all the others as they're just not necessary.
-
-The code to make a reading/spelling database,
-and the code to read and display the reading/spelling database. Those 2 pieces should just work as they are, and delete all the extra fluff code.
+Display the images and audio on the spelling mode a bit nicer. Currently they're just added using super.AddContent().
+Attempt to include the leonids library to have a celebration effect with confetti flying everywhere.
+	https://github.com/plattysoft/Leonids
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
-Then make it all a git project too.
+Then make the library a git project too.
+Also make the reading lesson creator text editor a git project.
 
-We need it to be able to create a DB line, and to read in from a database too.
-	See the reading lesson file on my android phone to see the new database file layout.
-
-Edit tina's reading lesson creator to make it make the new database lines.
-
-Display the image for the word
+Make the reading lesson creator make 2 lines for a work. A #reading# and #spelling#
+Also make it put #reading# infront of the consonant vowel pairs and all those groups
 	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
 	I think we should have every word added to the database twice.
 		once for the reading
 		once for the spelling.
 		This makes sense as they're both separate flashcards.
 
------\# This is the layout of the words.
-     |	# sounds
-     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:"wa.mp3">
-     |	
-     |	# words
-     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
-     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
-     |	
-     |	# sentence
-     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:"Reading Lesson 0001 - Sentence.mp3">
-----/
+	-----\# This is the layout of the words.
+	     |	# sounds
+	     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:"wa.mp3">
+	     |	
+	     |	# words
+	     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
+	     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
+	     |	
+	     |	# sentence
+	     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:"Reading Lesson 0001 - Sentence.mp3">
+	----/
 
 // How the layout will be used.
 The program will look through the flashcard database line by line.
@@ -128,7 +116,8 @@ Make a Read a Long feature, so it will highlight words as they are spoken on the
 	/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
 
 Fix the libteachingtinadbmanager CardDBManager scanDirectory() method
-	say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
+
+say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
 
 Download some FOSS pictures for the celebration images.
 Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images.
@@ -149,3 +138,10 @@ Add a statistics tracker to tina's app.
 	Time per deck
 	Time per flashcard
 	Each day's total studied card count.
+
+	I could just add a line whenever she answers a flashcard, that way I can write the code to anaylize it at a later date.
+
+Add a speaking alarm that says "Tina, do your reading practice". It should go off twice a day.
+
+
+Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
