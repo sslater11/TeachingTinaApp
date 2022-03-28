@@ -34,30 +34,6 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 
-class FlashcardGroupDeck extends FlashcardDeck {
-
-	FlashcardGroupDeck(ArrayList<Card> d, File deck_file_path, DeckSettings s) {
-		super(d, deck_file_path, s);
-		//FlashcardDeck abc = new FlashcardGroupDeck(new ArrayList<Card>(), new File("/test.txt"), new DeckSettings(new File("/test.txt")));
-//		FlashcardGroupDeck abc = new FlashcardDeck(new ArrayList<Card>(), new File("/test.txt"), new DeckSettings(new File("/test.txt")));
-		//abc.testingit();
-		
-		
-		// This is what Deck() does when it runs, so do this, so stick to this layout.
-		db_file = deck_file_path;
-		db_config_file = s.getFile();
-
-		deck = d;
-		settings = s;
-		
-		deck_index = new RandomizedIndex( this ); 
-	}
-	
-	public int testingit(){
-		return 0;
-	}
-}
-
 public class FlashcardGroupActivity extends FlashcardBaseActivity {
 	// This will override the original deck from FlashcardBaseActivity.
 	// It was originally of type FlashcardDeck()

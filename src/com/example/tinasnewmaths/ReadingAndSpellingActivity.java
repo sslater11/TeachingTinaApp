@@ -37,6 +37,7 @@ import libteachingtinadbmanager.Card;
 import libteachingtinadbmanager.CardDBManager;
 import libteachingtinadbmanager.CardDBTagManager;
 import libteachingtinadbmanager.DeckSettings;
+import libteachingtinadbmanager.ReadingLessonDeck;
 
 public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     protected String typed_string = "";
@@ -48,7 +49,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     boolean is_spelling_hint_enabled = false;
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
-    NewReadingLessonDeck reading_spelling_deck;
+    ReadingLessonDeck reading_spelling_deck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +62,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         group_names = CardDBManager.readDBGetGroupNames(db_file, settings);
         System.out.println(group_names);
         ArrayList<Card> tmp_deck = CardDBManager.readDBGetGroup(db_file, settings, group_names.get(0));
-        reading_spelling_deck = new NewReadingLessonDeck( tmp_deck, db_file, settings);
+        reading_spelling_deck = new ReadingLessonDeck( tmp_deck, db_file, settings);
         setContentView(R.layout.activity_reading_and_spelling);
         // Create the answer feedback tick and cross image.
         this.image_tick_or_cross = (ImageView) findViewById(R.id.imageTickOrCrossReading);
@@ -473,79 +474,3 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 }
 
-/**
- * Extends FlashcardGroupDeck and adds some methods to get the question from the flashcard.
- * It's different, because the flashcard format has been changed.
- * Here's an example of the new DB File Layout.
- *     #spelling/reading	word/text	audio	image
- *     #15/02/2022	1.4	19:40:56	3	#spelling#	dog	<audio:spell-dog.mp3><audio:spell-dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
- *     #15/02/2022	1.4	19:40:56	3	#reading#	dog	<audio:dog.mp3><audio:dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
- *
- *     Group	Words	15/02/2020	2.744	19:40:56	1
- *     15/02/2022	1.4	19:40:56	3	#spelling#	dog	<audio:spell-dog.mp3><audio:spell-dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
- *     15/02/2022	1.4	19:40:56	3	#reading#	dog	<audio:dog.mp3><audio:dog2.mp3>	<image:dog.jpg><image:dog2.jpg>
- *
- * The line is split to this order - spelling/reading	word/text	audio	image
- */
-class NewReadingLessonDeck extends FlashcardGroupDeck {
-    NewReadingLessonDeck(ArrayList<Card> d, File deck_file_path, DeckSettings s) {
-        super(d, deck_file_path, s);
-    }
-
-    public static String READING_MODE  = "#READING#";
-    public static String SPELLING_MODE = "#SPELLING#";
-    public static String SENTENCE_MODE = "#SENTENCE#";
-
-    final static int INDEX_CARD_MODE = 0;
-    final static int INDEX_TEXT      = 1;
-    final static int INDEX_IMAGE     = 2;
-    final static int INDEX_AUDIO     = 3;
-
-    public static ArrayList<String> getCardText( Card c ) {
-        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_TEXT) );
-        return list;
-    }
-    public static ArrayList<String> getCardImage( Card c ) {
-        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_IMAGE) );
-        return list;
-    }
-    public static ArrayList<String> getCardAudio( Card c ) {
-        ArrayList<String> list = CardDBTagManager.makeStringAList( c.getContent(INDEX_AUDIO) );
-        return list;
-    }
-    public static boolean is_card_reading_mode( Card c) {
-        String current_mode = c.getContent( 0 );
-        if( current_mode.compareToIgnoreCase( READING_MODE ) == 0 ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public static boolean is_card_spelling_mode( Card c) {
-        String current_mode = c.getContent( INDEX_CARD_MODE );
-        if( current_mode.compareToIgnoreCase( SPELLING_MODE ) == 0 ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public static boolean is_card_sentence_mode( Card c) {
-        String current_mode = c.getContent( INDEX_CARD_MODE  );
-        if( current_mode.compareToIgnoreCase( SENTENCE_MODE ) == 0 ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Implement these 2 methods, but we should never use them.
-    @Override
-    public ArrayList<String> getQuestion() {
-        return null;
-    }
-    @Override
-    public ArrayList<String> getAnswer() {
-        return null;
-    }
-
-}
