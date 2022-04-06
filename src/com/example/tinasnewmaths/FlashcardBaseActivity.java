@@ -105,7 +105,7 @@ public class FlashcardBaseActivity extends Activity {
                 imgArr.get(img_index).setImageBitmap(bitmap);
                 // Make the image view fit the image. On larger images that have been shrunk, they contain whitespace for some reason.
                 // This gets rid of the whitespace.
-                imgArr.get(img_index).setAdjustViewBounds(false);
+                imgArr.get(img_index).setAdjustViewBounds(true);
 
                 scroll_layout.addView(imgArr.get(img_index));
             } else if (CardDBTagManager.hasAudioTag(list.get(i))) {

@@ -48,10 +48,18 @@ public class FlashcardGroupActivity extends FlashcardBaseActivity {
 	                                                       // The first time it's run is at initialisation, which I don't want!
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState ) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_flashcard_group);
+		setContentView( R.layout.activity_flashcard_group );
+		init();
+	}
+	protected void onCreate(Bundle savedInstanceState, int layout_id ) {
+		super.onCreate(savedInstanceState);
+		setContentView(layout_id);
+		init();
+	}
 
+	private void init() {
 		scroll_layout = (LinearLayout) findViewById(R.id.flashcard_group_scroll_layout);
 		scroll_view   = (ScrollView)   findViewById(R.id.flashcard_group_scroll_view);
 

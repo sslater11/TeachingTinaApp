@@ -1,5 +1,6 @@
 package com.example.tinasnewmaths;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -52,7 +53,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
     ReadingLessonDeck reading_spelling_deck;
+    private float USER_TEXT_FONT_SIZE = 72f;
 
+    // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         String str_db_file = getIntent().getStringExtra("deck_file_path");
@@ -66,11 +70,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         ArrayList<Card> tmp_deck = CardDBManager.readDBGetGroup(db_file, settings, group_names.get(0));
         reading_spelling_deck = new ReadingLessonDeck( tmp_deck, db_file, settings);
         setContentView(R.layout.activity_reading_and_spelling);
-        // Create the answer feedback tick and cross image.
-        this.image_tick_or_cross = (ImageView) findViewById(R.id.imageTickOrCrossReading);
-        if( this.image_tick_or_cross != null ) {
-            this.image_tick_or_cross.setImageResource(R.drawable.answer_empty);
-        }
 
         // Create the spelling hint button.
         this.btn_spelling_hint = new Button(this);
@@ -85,11 +84,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         // Create user input text view.
         this.txtTyped = new TextView(this );
-        this.txtTyped.setTextSize( font_size );
+        this.txtTyped.setTextSize( USER_TEXT_FONT_SIZE );
         this.txtTyped.setGravity( Gravity.CENTER_HORIZONTAL);
 
         // We are calling this after setting up the extra objects as we need some to be defined for the super.onCreate() method to run successfully.
-        super.onCreate( savedInstanceState );
+        super.onCreate( savedInstanceState, R.layout.activity_reading_and_spelling);
 
         this.bt_show_answer.setText( "Check Answer" );
 
@@ -162,9 +161,81 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         } else {
             // It's spelling mode, so add the components in the right order.
 
-            super.AddContent( list );
-            // Make an array list for the audio buttons and the show spelling hint button.
-            
+            // This is used to center the table layouts on the screen.
+            // The table layout is used for the audio buttons.
+            LinearLayout.LayoutParams linear_layout_parameters = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            linear_layout_parameters.gravity = Gravity.CENTER;
+
+            // Make an array of audio buttons for each audio file in the flashcard.
+            ArrayList<String> audio_list = reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() );
+            for (int i = 0; i < audio_list.size(); i++) {
+                // Make an audio button and add the file's path.
+                String audio_filepath = CardDBTagManager.getAudioFilename(audio_list.get(i));
+                audio_filepath = db_media_folder + "/" + audio_filepath;
+
+                if( i == 0 ) {
+                    audioArr.add(new MyAudioButton(this, audio_filepath, true));
+                } else {
+                    audioArr.add(new MyAudioButton(this, audio_filepath, false));
+                }
+            }
+
+            // Make an array of images for each image in the flashcard.
+            ArrayList<String> image_list = reading_spelling_deck.getCardImage( reading_spelling_deck.getCurrentCard() );
+            for (int i = 0; i < image_list.size(); i++) {
+                // Make an image box and add the image.
+                imgArr.add(new ImageView(this));
+
+                String img_filename = CardDBTagManager.getImageFilename(image_list.get(i));
+
+                // Get the image file as a bitmap, and set it to the image view.
+                Bitmap bitmap = BitmapFactory.decodeFile(db_media_folder + "/" + img_filename);
+                imgArr.get(i).setImageBitmap(bitmap);
+
+                // Make the image view fit the image. On larger images that have been shrunk, they contain whitespace for some reason.
+                // This gets rid of the whitespace.
+                imgArr.get(i).setAdjustViewBounds(true);
+
+                // Pad the images, so when they are displayed together, there's a small gap.
+                imgArr.get(i).setPadding(10, 10,10,10);
+            }
+
+            // Create the table for the audio buttons to be in the same row.
+            TableLayout audio_buttons_table_layout = new TableLayout( this );
+
+            // Finally add the buttons.
+            TableRow audio_tr = new TableRow(this );
+            for( int i = 0; i < audioArr.size(); i++ ) {
+                //audioArr.get(i).setGravity( Gravity.CENTER );
+                audio_tr.addView( audioArr.get(i) );
+            }
+            audio_buttons_table_layout.addView( audio_tr );
+
+            // Setup the parameters to make the hint button span the columns of the audio buttons
+            TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
+            row_layout_parameters.span = audioArr.size();
+
+            // Add the hint button to the table row.
+            TableRow hint_tr = new TableRow( this );
+            hint_tr.addView( btn_spelling_hint, row_layout_parameters );
+            audio_buttons_table_layout.addView( hint_tr );
+
+           // Add the images to the images layout.
+            LinearLayout images_layout = new LinearLayout(this );
+            for( int i = 0; i < imgArr.size(); i++ ) {
+                images_layout.addView( imgArr.get(i) );
+            }
+
+            // Center the images to the middle of the screen.
+            images_layout.setLayoutParams( linear_layout_parameters );
+            images_layout.setGravity(Gravity.CENTER);
+
+            // Center the grid into the middle of the screen.
+            audio_buttons_table_layout.setLayoutParams( linear_layout_parameters );
+
+            // Add the layouts to scroll layout.
+            scroll_layout.addView( images_layout );
+            scroll_layout.addView( audio_buttons_table_layout );
         }
     }
 
@@ -258,16 +329,14 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 letters_table_layout.setLayoutParams( linear_layout_parameters );
 
                 // Add the other components
-                AddContent( reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() ) );
+                //AddContent( reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() ) );
                 AddContent( reading_spelling_deck.getCardImage( reading_spelling_deck.getCurrentCard() ) );
 
 
                 // Add all the components in the desired order.
 
                 scroll_layout.setGravity( Gravity.CENTER_HORIZONTAL );
-                scroll_layout.addView( this.btn_spelling_hint );
-                AddContent( reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ) );
-                scroll_layout.addView( this.image_tick_or_cross );
+                scroll_layout.setGravity( Gravity.FILL_HORIZONTAL );
                 scroll_layout.addView( this.txtTyped );
                 scroll_layout.addView( letters_table_layout );
             }
@@ -297,11 +366,13 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     public void ShowAnswerPressed() {
         String user_input = getTypedString().toLowerCase();
         String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0).toLowerCase();
+
+        // Do nothing if they haven't even typed anything yet.
+        if( user_input.length() == 0 ) {
+            return;
+        }
         if( user_input.compareToIgnoreCase( word ) == 0 ) {
             // Answer is correct
-            // Display a confirmation tick by using my ImageThread.
-            ImageThread img_t = new ImageThread(this, true);
-            img_t.start();
 
             // Explosion of ticks celebration.
             // Fucking love this, major thanks to the Leonids library!
@@ -321,13 +392,23 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 // Since they didn't see a hint, mark it as correct.
                 reading_spelling_deck.nextQuestion(true, false);
             }
+
+            // Reset for the next card.
             is_spelling_hint_enabled = false;
 
         } else {
             // Answer is wrong.
-            ImageThread img_t = new ImageThread(this, false);
+
+            // Red crosses shooting out of the top of the screen.
+            // Fucking love this, major thanks to the Leonids library!
+            ParticleSystem particle = new ParticleSystem(this, 200, R.drawable.answer_cross_medium, 2500);
+            particle.setSpeedModuleAndAngleRange(0.3f, 0.8f, 35, 145);
+            particle.setRotationSpeed(180);
+            particle.emit(findViewById(R.id.top_emitter), 30, 1000);
+
+            // Mark the card as wrong and stay on the current card.
+            // Set the hint to true so they can see the word.
             reading_spelling_deck.nextQuestion(false, true);
-            img_t.start();
             is_spelling_hint_enabled = true;
         }
         NextQuestion();
@@ -376,7 +457,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     /*
     This will turn the user input font to black with a transparent green highlight.
     If the answer hint is to be shown, it'll show it as a light grey font.
-    if they type anything wrong, the font will be bright red
+    If they type anything wrong, the font will be bright red
    */
     public void displayUserInput() {
         String user_input = getTypedString();
@@ -481,6 +562,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
     class ShowUserSpellingHint implements View.OnClickListener {
         public void onClick(View v) {
+            // Erase all user input to show the hint clearly.
+            setTypedString( "" );
+
+            // With the spelling hint flag enabled, the displayUserInput will be ran and will show the hint.
             is_spelling_hint_enabled = true;
             displayUserInput();
         }

@@ -52,9 +52,14 @@ My steps to get this up and running so far.
 
 [done: 26/3/22] Made Tina's app read and display the flashcards for the spelling mode.
 
-Display the images and audio on the spelling mode a bit nicer. Currently they're just added using super.AddContent().
-Attempt to include the leonids library to have a celebration effect with confetti flying everywhere.
-	https://github.com/plattysoft/Leonids
+[done] Attempt to include the leonids library to have a celebration effect with confetti flying everywhere.
+[done]	https://github.com/plattysoft/Leonids
+
+[done: 06/4/22] Make a table for the buttons to go in so they take up just one line.
+[done: 06/4/22] Display the images and audio on the spelling mode a bit nicer. Currently they're just added using super.AddContent().
+
+Test adding everything to a linear layout instead of scroll_layout, because we want everything to fit on one page, hoping that the images will scale and not push anything off the screen.
+
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
 Then make the library a git project too.
