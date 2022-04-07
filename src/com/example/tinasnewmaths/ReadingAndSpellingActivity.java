@@ -54,6 +54,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
     ReadingLessonDeck reading_spelling_deck;
     private float USER_TEXT_FONT_SIZE = 72f;
+    private float LETTER_BUTTONS_FONT_SIZE = 32f;
+    private Typeface FONT_TYPEFACE = Typeface.SANS_SERIF;
 
     // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
     @SuppressLint("MissingSuperCall")
@@ -74,12 +76,14 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Create the spelling hint button.
         this.btn_spelling_hint = new Button(this);
         this.btn_spelling_hint.setText("?");
-        this.btn_spelling_hint.setTextSize(36f);
+        this.btn_spelling_hint.setTextSize( LETTER_BUTTONS_FONT_SIZE );
+        this.btn_spelling_hint.setTypeface( FONT_TYPEFACE );
         this.btn_spelling_hint.setOnClickListener( new ShowUserSpellingHint() );
 
         // Create the clear button.
         this.clear_user_input = new Button( this );
         this.clear_user_input.setText( "Clear" );
+        this.clear_user_input.setTypeface( FONT_TYPEFACE );
         this.clear_user_input.setOnClickListener( new ClearUserInputListener() );
 
         // Create user input text view.
@@ -94,14 +98,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
     }
 
-    /*public void AddContent(ArrayList<String> list) {
-        if( deck.getCurrentCard().group.getGroupName().compareTo("Words") == 0 ) {
-            if( is_reading_mode ) {
-                // Display just the word on the screen.
-            }
-
-        }
-    }*/
     public void AddContent(ArrayList<String> list) {
 
         if( is_reading_mode ) {
@@ -271,14 +267,15 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                     }
                 }
 
+                int max_column = 5;
                 int num_random_letters_buttons_to_add = 0;
                 if( spelling_buttons.size() < MINIMUM_SPELLING_BUTTONS ) {
                     // If the word is less than 6, add more letters.
                     num_random_letters_buttons_to_add = MINIMUM_SPELLING_BUTTONS - spelling_buttons.size();
                 } else {
                     // The word is bigger than or equal to 6 letters.
-                    // so add enough buttons to fit on a row of 3.
-                    num_random_letters_buttons_to_add = 3 - (spelling_buttons.size() % 3);
+                    // so add enough buttons to fit on another row.
+                    num_random_letters_buttons_to_add = max_column - (spelling_buttons.size() % max_column);
                 }
                 for( int i = 0; i < num_random_letters_buttons_to_add; i++ ) {
                     // Add a random letter, but only if it's not in the current word.
@@ -293,9 +290,9 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 Collections.shuffle( spelling_buttons );
 
-                // Create the grid for the letter buttons.
-                int column = 3;
-                int row = (int) Math.ceil( (double)spelling_buttons.size() / (double)column );
+
+                //// Create the grid for the letter buttons.
+                int row = (int) Math.ceil( (double)spelling_buttons.size() / (double)max_column );
                 row += 1; // Increment so we have an extra row for the clear button to go in.
                 TableLayout letters_table_layout = new TableLayout( this );
 
@@ -304,7 +301,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 for( int i = 0; i < spelling_buttons.size(); i++ ) {
                     spelling_buttons.get(i).setGravity( Gravity.CENTER );
                     tr.addView( spelling_buttons.get(i) );
-                    if( (i != 0) && ((i+1) % column == 0) ) {
+                    if( (i != 0) && ((i+1) % max_column == 0) ) {
                         letters_table_layout.addView( tr );
                         tr = new TableRow( this );
                     }
@@ -316,7 +313,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 // Setup the parameters to make the clear button span the columns
                 TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
-                row_layout_parameters.span = column;
+                row_layout_parameters.span = max_column;
 
                 tr = new TableRow( this );
                 tr.addView( clear_user_input, row_layout_parameters );
@@ -437,10 +434,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         SpellingButton(Context context, String letter ) {
             super( context );
             this.letter = letter;
-            this.setTextSize(36f);
-            // this font seems to have nice lowercase letters and i and l are easy to distinguish.
+            this.setTextSize( LETTER_BUTTONS_FONT_SIZE );
             this.setText( letter.toLowerCase() );
-            this.setTypeface( Typeface.SANS_SERIF );
+            // this font seems to have nice lowercase letters and i and l are easy to distinguish.
+            this.setTypeface( FONT_TYPEFACE );
         }
         SpellingButton(Context context, char letter ) {
             this( context, "" + letter );

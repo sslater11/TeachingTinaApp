@@ -58,7 +58,10 @@ My steps to get this up and running so far.
 [done: 06/4/22] Make a table for the buttons to go in so they take up just one line.
 [done: 06/4/22] Display the images and audio on the spelling mode a bit nicer. Currently they're just added using super.AddContent().
 
-Test adding everything to a linear layout instead of scroll_layout, because we want everything to fit on one page, hoping that the images will scale and not push anything off the screen.
+[done: 07/4/22] Test adding everything to a linear layout instead of scroll_layout, because we want everything to fit on one page, hoping that the images will scale and not push anything off the screen.
+	[done: 07/4/22] This doesn't work, so keeping the scrolling layout. With linear layout, everything gets pushed off the screen and we can't access it. At least with the scroll layout we can access all the components if they're pushed off the screen.
+
+Put the spelling buttons into fewer rows as it makes sense to use the whole width of the screen instead of taking up the height which the images require.`
 
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
