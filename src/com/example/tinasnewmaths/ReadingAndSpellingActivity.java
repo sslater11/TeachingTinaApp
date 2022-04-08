@@ -269,23 +269,43 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 int max_column = 5;
                 int num_random_letters_buttons_to_add = 0;
-                if( spelling_buttons.size() < MINIMUM_SPELLING_BUTTONS ) {
+                if( spelling_buttons.size() < max_column ) {
                     // If the word is less than 6, add more letters.
-                    num_random_letters_buttons_to_add = MINIMUM_SPELLING_BUTTONS - spelling_buttons.size();
+                    num_random_letters_buttons_to_add = max_column - spelling_buttons.size();
                 } else {
                     // The word is bigger than or equal to 6 letters.
                     // so add enough buttons to fit on another row.
                     num_random_letters_buttons_to_add = max_column - (spelling_buttons.size() % max_column);
                 }
-                for( int i = 0; i < num_random_letters_buttons_to_add; i++ ) {
-                    // Add a random letter, but only if it's not in the current word.
-                    int letter_index = (int)((Math.random() * 100) % 26);
-                    while( isLetterInButtonArray(spelling_buttons, alphabet.charAt(letter_index)) ) {
-                        letter_index = (int)((Math.random() * 100) % 26);
+
+                // Add a random letter button, but only if it's not in the current word.
+                String temp_alphabet = alphabet;
+                for( int i = 0; ( i < num_random_letters_buttons_to_add ); i++ ) {
+
+                    int letter_index = 0;
+
+                    boolean keep_going = true;
+                    while( keep_going ) {
+                        if( temp_alphabet.length() != 0 ) {
+                            // Get a random letter by it's index.
+                            letter_index = (int)((Math.random() * 100) % temp_alphabet.length());
+                            if ( isLetterInButtonArray(spelling_buttons, temp_alphabet.charAt(letter_index)) )
+                            {
+                                // Remove the unwanted letter
+                                temp_alphabet = temp_alphabet.substring(0, letter_index) + temp_alphabet.substring(letter_index+1, temp_alphabet.length());
+                            }
+                            else
+                            {
+                                // We have found a letter, so create a button and stop the while loop.
+                                keep_going = false;
+                                Button letter_button = new SpellingButton(this, temp_alphabet.charAt(letter_index));
+                                letter_button.setOnClickListener(new LetterListener(temp_alphabet.charAt(letter_index)));
+                                spelling_buttons.add(letter_button);
+                            }
+                        } else {
+                            keep_going = false;
+                        }
                     }
-                    Button letter_button = new SpellingButton(this, alphabet.charAt( letter_index ));
-                    letter_button.setOnClickListener(new LetterListener( alphabet.charAt(letter_index) ) );
-                    spelling_buttons.add( letter_button );
                 }
 
                 Collections.shuffle( spelling_buttons );
@@ -307,6 +327,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                     }
                     //grid_layout.addView(spelling_buttons.get(i));
                 }
+                letters_table_layout.addView( tr );
 
                 // Add the clear button to the last row of the grid, and make it span all the columns
                 //letters_table_layout.setStretchAllColumns(false);
