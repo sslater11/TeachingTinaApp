@@ -3,11 +3,8 @@ As of today, my codebase is still fragmented, even though I was supposed to cond
 
 A quick refresher for myself:
 I moved the database management to LibTeachingTinaDatabaseManagerv2 in the eclipse folder.
-I worked on updating it and now need to merge it with this android version.
-I can either copy the files, or link the library.
-I might copy the files as that'd be easier to manage, because I only want one version of this program for Tina. That being said, Tina's reading lesson creator uses the library, so ultimately that should be used, but for now it'd just be easier to copy the files, so do that.
-The android app should be the whole program, there's no real need for a PC version as android does everything I want and need, and it looks a lot more polished than the PC version.
-
+I've decided to just use a symlink to the library folder to include it in adroid as that's easier to manage.
+I'm working on the android app instead of the PC version as the app seems a lot better and polished.
 
 My steps to get this up and running so far.
 ------------------------------------------
@@ -61,16 +58,23 @@ My steps to get this up and running so far.
 [done: 07/4/22] Test adding everything to a linear layout instead of scroll_layout, because we want everything to fit on one page, hoping that the images will scale and not push anything off the screen.
 	[done: 07/4/22] This doesn't work, so keeping the scrolling layout. With linear layout, everything gets pushed off the screen and we can't access it. At least with the scroll layout we can access all the components if they're pushed off the screen.
 
-Put the spelling buttons into fewer rows as it makes sense to use the whole width of the screen instead of taking up the height which the images require.`
+[done: 08/4/22] Put the spelling buttons into fewer rows as it makes sense to use the whole width of the screen instead of taking up the height which the images require.`
+
+Reading mode:
+	Work on the displaying the flashcard in the reading mode.
+
+Sentence mode:
+	Make a Read a Long feature, so it will highlight words as they are spoken on the audio.
+		I have already wrote out a basic implementation that works here.
+		/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
 
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
 Then make the library a git project too.
 Also make the reading lesson creator text editor a git project.
 
-Make the reading lesson creator make 2 lines for a work. A #reading# and #spelling#
+Make the reading lesson creator make 2 lines for a word. A #reading# and #spelling#
 Also make it put #reading# infront of the consonant vowel pairs and all those groups
-	To display the audio and image for a word to be spelled, we need to add the card's media content, but not display the actual word.
 	I think we should have every word added to the database twice.
 		once for the reading
 		once for the spelling.
@@ -78,56 +82,57 @@ Also make it put #reading# infront of the consonant vowel pairs and all those gr
 
 	-----\# This is the layout of the words.
 	     |	# sounds
-	     |	01/01/2018	1	00:00:00	0	#READING#	wa	<audio:"wa.mp3">
+	     |	01/01/2018	1	00:00:00	0	#READING#	ca	<audio:"ca.mp3">
+	     |	01/01/2018	1	00:00:00	0	#READING#	ac	<audio:"ac.mp3">
+	     |	01/01/2018	1	00:00:00	0	#READING#	at	<audio:"at.mp3">
+	     |	01/01/2018	1	00:00:00	0	#READING#	ta	<audio:"ta.mp3">
 	     |	
 	     |	# words
 	     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
 	     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
 	     |	
 	     |	# sentence
-	     |	01/01/2018	1	00:00:00	0	#SENTENCE	#I want to test this	<audio:"Reading Lesson 0001 - Sentence.mp3">
+	     |	01/01/2018	1	00:00:00	0	#SENTENCE	There was a cat	<audio:"Reading Lesson 0001 - Sentence.mp3">
 	----/
 
-// How the layout will be used.
-The program will look through the flashcard database line by line.
-The flashcards are grouped in lessons, but we will not necessarily load just from one lesson. We load flashcards that are next needing a review.
-The lesson grouping of the flashcards is more to handle the user's current reading level.
-If they are up to a certain level, they will know all the words before, so we can easily see how large their vocabulary is.
+Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
 
-Play the audio file.
-	Allow for multiple audio files, so one will say "spell cat", and the other say "Spell the word cat. The cat meows. Spell cat".
+Make the app actually load flashcards properly
+	// How the layout will be used.
+	The program will look through the flashcard database line by line.
+	The flashcards are grouped in lessons, but we will not necessarily load just from one lesson. We load flashcards that are next needing a review.
+	The lesson grouping of the flashcards is more to handle the user's current reading level.
+	If they are up to a certain level, they will know all the words before, so we can easily see how large their vocabulary is.
 
-Add a button to show the hint.
+	Flashcards are loaded as if all the reading lessons and cards are of a single deck, so they're reviewed in the order that they need to be reviewed in, and not separated by file or group.
+
 
 Fix the fact that the maximum study session doesn't seem to be working.
 	I think the review date in the text file is what holds the amount of reviews a day.
 	I need to read my code to refresh myself on how that works.
+
+
+Add a statistics tracker to tina's app.
+	Log how much time she spends in the app a day
+	Time per deck
+	Time per flashcard
+	Each day's total studied card count.
+
+	I could just add a line whenever she answers a flashcard, that way I can write the code to anaylize it at a later date.
+	Maybe:
 		I'm thinking I should update a stats file for each database.
 		And in each deck folder, have a stats folder to hold the stats fr each day.
-		
-Work on teaching Tina how to read, write the necessary steps for this
-	Look in the project for anything I've wrote about teaching Tina how to read.
-	Look at Tina's reading lesson creator in the eclipse folder, as that will create the lesson files required for her.
-	Make a new Activity or something for displaying the words.
-		It will show the word "ball", and she will have to say "ball" out loud, and when shown the answer the app will say "ball" and show a picture of a ball.
-		The reverse of that is it should show a picture of a ball, and she will have to spell it using letters on the screen.
-			If she is struggling, show a hint of the word.
-			We can show a hint by having the text on the screen, but really faint, then it could get fainter with time.
 
 Rename the app TeachingTina
 
 Update the DeckSettings so that I actually understand what all the settings do, and update the SettingsActivity so it can change all of the settings.
 Maybe change the deck settings over to use Java's Properties class.
+	Work on the deck settings gui so we can easily change every setting without needing to look at the file.
+	Maybe update how the settings file is read to using the Properties object if it doesn't use that right now.
 
-Make a Read a Long feature, so it will highlight words as they are spoken on the audio.
-	I have already wrote out a basic implementation that works here.
-	/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
-
-Fix the libteachingtinadbmanager CardDBManager scanDirectory() method
 
 say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
 
-Download some FOSS pictures for the celebration images.
 Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images.
 
 Upload app to github
@@ -141,15 +146,5 @@ Add a daily card count on the main menu screen.
 	Have a total count underneath each deck.
 	Remember that tina has to study each deck x times as that's the only way to learn more than 3 cards. e.g. she learns 3 cards, then loads the deck again to load 3 more, and that's her daily limit reached.
 
-Add a statistics tracker to tina's app.
-	Log how much time she spends in the app a day
-	Time per deck
-	Time per flashcard
-	Each day's total studied card count.
-
-	I could just add a line whenever she answers a flashcard, that way I can write the code to anaylize it at a later date.
-
 Add a speaking alarm that says "Tina, do your reading practice". It should go off twice a day.
 
-
-Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
