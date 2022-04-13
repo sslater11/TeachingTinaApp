@@ -120,158 +120,154 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         this.is_answer_shown = false;
         font_size = DEFAULT_FONT_SIZE * 2;
 
-        if( deck.getCurrentCard().group.getGroupName().compareTo("Words") == 0 ) {
-            if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
-                // Display just the word on the screen.
-                String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
-                this.txtTyped.setText( word );
-                scroll_layout.addView( this.txtTyped );
+        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
+            // Display just the word on the screen.
+            String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+            this.txtTyped.setText( word );
+            scroll_layout.addView( this.txtTyped );
+        }
+        else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
+            // Spelling mode.
+            // It's spelling mode, so we need to completely change the layout to spelling mode.
+            spelling_buttons = new ArrayList<Button>();
+
+            // Get every letter in the word and make a button for it.
+            String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+            for( int i = 0; i < word.length(); i++ ) {
+                char letter = word.charAt(i);
+
+                if( ! isLetterInButtonArray(spelling_buttons, letter) ){
+                    SpellingButton b = new SpellingButton( this, letter );
+                    b.setOnClickListener(new LetterListener( letter ) );
+                    spelling_buttons.add( b );
+                }
             }
-            else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
-                // Spelling mode.
-                // It's spelling mode, so we need to completely change the layout to spelling mode.
-                spelling_buttons = new ArrayList<Button>();
 
-                // Get every letter in the word and make a button for it.
-                String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
-                for( int i = 0; i < word.length(); i++ ) {
-                    char letter = word.charAt(i);
+            int max_column = 5;
+            int num_random_letters_buttons_to_add = 0;
+            if( spelling_buttons.size() < max_column ) {
+                // If the word is less than 6, add more letters.
+                num_random_letters_buttons_to_add = max_column - spelling_buttons.size();
+            } else {
+                // The word is bigger than or equal to 6 letters.
+                // so add enough buttons to fit on another row.
+                num_random_letters_buttons_to_add = max_column - (spelling_buttons.size() % max_column);
+            }
 
-                    if( ! isLetterInButtonArray(spelling_buttons, letter) ){
-                        SpellingButton b = new SpellingButton( this, letter );
-                        b.setOnClickListener(new LetterListener( letter ) );
-                        spelling_buttons.add( b );
-                    }
-                }
+            // Add a random letter button, but only if it's not in the current word.
+            String temp_alphabet = alphabet;
+            for( int i = 0; ( i < num_random_letters_buttons_to_add ); i++ ) {
 
-                int max_column = 5;
-                int num_random_letters_buttons_to_add = 0;
-                if( spelling_buttons.size() < max_column ) {
-                    // If the word is less than 6, add more letters.
-                    num_random_letters_buttons_to_add = max_column - spelling_buttons.size();
-                } else {
-                    // The word is bigger than or equal to 6 letters.
-                    // so add enough buttons to fit on another row.
-                    num_random_letters_buttons_to_add = max_column - (spelling_buttons.size() % max_column);
-                }
+                int letter_index = 0;
 
-                // Add a random letter button, but only if it's not in the current word.
-                String temp_alphabet = alphabet;
-                for( int i = 0; ( i < num_random_letters_buttons_to_add ); i++ ) {
-
-                    int letter_index = 0;
-
-                    boolean keep_going = true;
-                    while( keep_going ) {
-                        if( temp_alphabet.length() != 0 ) {
-                            // Get a random letter by it's index.
-                            letter_index = (int)((Math.random() * 100) % temp_alphabet.length());
-                            if ( isLetterInButtonArray(spelling_buttons, temp_alphabet.charAt(letter_index)) )
-                            {
-                                // Remove the unwanted letter
-                                temp_alphabet = temp_alphabet.substring(0, letter_index) + temp_alphabet.substring(letter_index+1, temp_alphabet.length());
-                            }
-                            else
-                            {
-                                // We have found a letter, so create a button and stop the while loop.
-                                keep_going = false;
-                                Button letter_button = new SpellingButton(this, temp_alphabet.charAt(letter_index));
-                                letter_button.setOnClickListener(new LetterListener(temp_alphabet.charAt(letter_index)));
-                                spelling_buttons.add(letter_button);
-                            }
-                        } else {
-                            keep_going = false;
+                boolean keep_going = true;
+                while( keep_going ) {
+                    if( temp_alphabet.length() != 0 ) {
+                        // Get a random letter by it's index.
+                        letter_index = (int)((Math.random() * 100) % temp_alphabet.length());
+                        if ( isLetterInButtonArray(spelling_buttons, temp_alphabet.charAt(letter_index)) )
+                        {
+                            // Remove the unwanted letter
+                            temp_alphabet = temp_alphabet.substring(0, letter_index) + temp_alphabet.substring(letter_index+1, temp_alphabet.length());
                         }
+                        else
+                        {
+                            // We have found a letter, so create a button and stop the while loop.
+                            keep_going = false;
+                            Button letter_button = new SpellingButton(this, temp_alphabet.charAt(letter_index));
+                            letter_button.setOnClickListener(new LetterListener(temp_alphabet.charAt(letter_index)));
+                            spelling_buttons.add(letter_button);
+                        }
+                    } else {
+                        keep_going = false;
                     }
                 }
-
-                Collections.shuffle( spelling_buttons );
-
-
-                //// Create the grid for the letter buttons.
-                int row = (int) Math.ceil( (double)spelling_buttons.size() / (double)max_column );
-                row += 1; // Increment so we have an extra row for the clear button to go in.
-                TableLayout letters_table_layout = new TableLayout( this );
-
-                // Finally add the buttons.
-                TableRow tr = new TableRow(this );
-                for( int i = 0; i < spelling_buttons.size(); i++ ) {
-                    spelling_buttons.get(i).setGravity( Gravity.CENTER );
-                    tr.addView( spelling_buttons.get(i) );
-                    if( (i != 0) && ((i+1) % max_column == 0) ) {
-                        letters_table_layout.addView( tr );
-                        tr = new TableRow( this );
-                    }
-                    //grid_layout.addView(spelling_buttons.get(i));
-                }
-                letters_table_layout.addView( tr );
-
-                // Add the clear button to the last row of the grid, and make it span all the columns
-                //letters_table_layout.setStretchAllColumns(false);
-
-                // Setup the parameters to make the clear button span the columns
-                TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
-                row_layout_parameters.span = max_column;
-
-                tr = new TableRow( this );
-                tr.addView( clear_user_input, row_layout_parameters );
-                letters_table_layout.addView( tr );
-
-
-                // Center the grid into the middle of the scroll view.
-                LinearLayout.LayoutParams linear_layout_parameters = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                linear_layout_parameters.gravity = Gravity.CENTER;
-                letters_table_layout.setLayoutParams( linear_layout_parameters );
-
-
-                // Add the other components
-                DisplayImagesAndAudio();
-                // Setup the parameters to make the hint button span the columns of the audio buttons
-                TableRow.LayoutParams hint_row_layout_parameters = new TableRow.LayoutParams();
-                hint_row_layout_parameters.span = audioArr.size();
-
-                // Add the hint button to the table row.
-                TableRow hint_tr = new TableRow( this );
-                hint_tr.addView( btn_spelling_hint, hint_row_layout_parameters );
-                this.audio_buttons_table_layout.addView( hint_tr );
-
-
-                // Add all the components in the desired order.
-                scroll_layout.setGravity( Gravity.CENTER_HORIZONTAL );
-                scroll_layout.setGravity( Gravity.FILL_HORIZONTAL );
-                scroll_layout.addView( this.txtTyped );
-                scroll_layout.addView( letters_table_layout );
             }
-        } else if( deck.getCurrentCard().group.getGroupName().compareTo("Sentence") == 0 ) {
-            if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
-                String sentence = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
 
-                // Give each word it's own on click listener so the user can hear the word by it's self when they click it.
-                ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
-                SpannableStringBuilder spannable_string = new SpannableStringBuilder();
-                spannable_string.append(sentence);
-                for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
-                    String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
-                    String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
-                    // Set the on click action to play the audio file.
-                    MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path );
+            Collections.shuffle( spelling_buttons );
 
-                    int start = words_list_with_indexes.get( i ).getStartingIndex();
-                    int end   = words_list_with_indexes.get( i ).getEndingIndex();
-                    spannable_string.setSpan( clickable_span, start, end, 0 );
+
+            //// Create the grid for the letter buttons.
+            int row = (int) Math.ceil( (double)spelling_buttons.size() / (double)max_column );
+            row += 1; // Increment so we have an extra row for the clear button to go in.
+            TableLayout letters_table_layout = new TableLayout( this );
+
+            // Finally add the buttons.
+            TableRow tr = new TableRow(this );
+            for( int i = 0; i < spelling_buttons.size(); i++ ) {
+                spelling_buttons.get(i).setGravity( Gravity.CENTER );
+                tr.addView( spelling_buttons.get(i) );
+                if( (i != 0) && ((i+1) % max_column == 0) ) {
+                    letters_table_layout.addView( tr );
+                    tr = new TableRow( this );
                 }
-
-                TextView txtReadAlong = new TextView(this);
-
-                // This line is also needed for making the text clickable.
-                txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
-
-                txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
-                txtReadAlong.setTypeface(FONT_TYPEFACE);
-                txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
-                txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
-                scroll_layout.addView(txtReadAlong);
             }
+            letters_table_layout.addView( tr );
+
+            // Add the clear button to the last row of the grid, and make it span all the columns
+            //letters_table_layout.setStretchAllColumns(false);
+
+            // Setup the parameters to make the clear button span the columns
+            TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
+            row_layout_parameters.span = max_column;
+
+            tr = new TableRow( this );
+            tr.addView( clear_user_input, row_layout_parameters );
+            letters_table_layout.addView( tr );
+
+
+            // Center the grid into the middle of the scroll view.
+            LinearLayout.LayoutParams linear_layout_parameters = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            linear_layout_parameters.gravity = Gravity.CENTER;
+            letters_table_layout.setLayoutParams( linear_layout_parameters );
+
+
+            // Add the other components
+            DisplayImagesAndAudio();
+            // Setup the parameters to make the hint button span the columns of the audio buttons
+            TableRow.LayoutParams hint_row_layout_parameters = new TableRow.LayoutParams();
+            hint_row_layout_parameters.span = audioArr.size();
+
+            // Add the hint button to the table row.
+            TableRow hint_tr = new TableRow( this );
+            hint_tr.addView( btn_spelling_hint, hint_row_layout_parameters );
+            this.audio_buttons_table_layout.addView( hint_tr );
+
+
+            // Add all the components in the desired order.
+            scroll_layout.setGravity( Gravity.CENTER_HORIZONTAL );
+            scroll_layout.setGravity( Gravity.FILL_HORIZONTAL );
+            scroll_layout.addView( this.txtTyped );
+            scroll_layout.addView( letters_table_layout );
+        }
+        if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
+            String sentence = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+
+            // Give each word it's own on click listener so the user can hear the word by it's self when they click it.
+            ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
+            SpannableStringBuilder spannable_string = new SpannableStringBuilder();
+            spannable_string.append(sentence);
+            for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
+                String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
+                String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
+                // Set the on click action to play the audio file.
+                MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path );
+
+                int start = words_list_with_indexes.get( i ).getStartingIndex();
+                int end   = words_list_with_indexes.get( i ).getEndingIndex();
+                spannable_string.setSpan( clickable_span, start, end, 0 );
+            }
+
+            TextView txtReadAlong = new TextView(this);
+
+            // This line is also needed for making the text clickable.
+            txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
+
+            txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
+            txtReadAlong.setTypeface(FONT_TYPEFACE);
+            txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
+            txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
+            scroll_layout.addView(txtReadAlong);
         }
     }
 
@@ -450,16 +446,35 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         particle.emit(findViewById(R.id.top_emitter), 30, 1000);
     }
 
+    public void AnimationCrossesFallingShort() {
+        // Red crosses shooting out of the top of the screen.
+        // Fucking love this, major thanks to the Leonids library!
+        ParticleSystem particle = new ParticleSystem(this, 200, R.drawable.answer_cross_medium, 2500);
+        particle.setSpeedModuleAndAngleRange(0.3f, 0.8f, 35, 145);
+        particle.setRotationSpeed(180);
+        particle.emit(findViewById(R.id.top_emitter), 6, 500);
+    }
+
 
     @Override
     public void CorrectPressed() {
-        super.CorrectPressed();
+        // They got it right.
+        // Stop the user from tapping the buttons whilst it's doing stuff.
+        DisableButtons();
+        clearUserInput();
+        reading_spelling_deck.nextQuestion(true, false);
+        NextQuestion();
         AnimationExplodingTicks();
     }
 
     @Override
     public void IncorrectPressed() {
-        super.IncorrectPressed();
+        // They got it wrong.
+        // Stop the user from tapping the buttons whilst it's doing stuff.
+        DisableButtons();
+        clearUserInput();
+        reading_spelling_deck.nextQuestion(false, false);
+        NextQuestion();
         AnimationCrossesFalling();
     }
 
@@ -636,8 +651,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 // When in sentence mode
                 // They have not heard the audio and must have clicked
                 // the word for a hint, so set the card to failed.
-                reading_spelling_deck.nextQuestion(false, false);
-                AnimationCrossesFalling();
+                reading_spelling_deck.nextQuestion(false, true);
+                AnimationCrossesFallingShort();
             }
             // Play Audio File.
             MediaPlayer audio = new MediaPlayer();
