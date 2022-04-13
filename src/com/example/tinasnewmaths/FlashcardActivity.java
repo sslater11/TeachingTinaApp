@@ -61,36 +61,29 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	protected String audio_file;
 	protected MediaPlayer audio;
 	protected boolean autostart;
-	
+
 	public MyAudioButton(Context context, String audio_file, boolean autostart) {
 		super(context);
-		
+
 		setAudioFile( audio_file );
 		
-            audio = new MediaPlayer();
-            try {
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	System.out.println( getAudioFile() );
-            	audio.setDataSource( getAudioFile() );
-            	audio.prepare();
+		audio = new MediaPlayer();
+		try {
+			audio.setDataSource( getAudioFile() );
+			audio.prepare();
 
-            } catch (Exception e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-            }
-            
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		setImageResource(R.drawable.ic_action_play);
 
-            setOnClickListener(this);
-            
-            if( autostart ) {
-            	audio.start();
-            }
+		setOnClickListener(this);
+
+		if( autostart ) {
+			audio.start();
+		}
 	}
 	
 	@Override

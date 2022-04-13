@@ -60,13 +60,41 @@ My steps to get this up and running so far.
 
 [done: 08/4/22] Put the spelling buttons into fewer rows as it makes sense to use the whole width of the screen instead of taking up the height which the images require.`
 
-Reading mode:
-	Work on the displaying the flashcard in the reading mode.
+[done: 09/4/22] Reading mode:
+	[done: 09/4/22] Work on the displaying the flashcard in the reading mode.
+
+Play the audio "Spell the word..." for every time the spelling mode shows a card. Then auto play word's audio e.g. "cat", so it will say "Spell the word..." "cat"
+
 
 Sentence mode:
+	[done: 11/4/22] make a new program called TeachingTinaReadAlongTimingCreator. It will load a sentennce and audio from a flashcard and when play is pressed, we can click on each word and it will store the time in milliseconds for when it should highlight the word.
+
+	[done: 12/4/22] Make the feature "tap this word in the sentence to hear it".
+
+	[done: 12/4/22] # bug fix !!!
+		[done: 12/4/22] The tap on a word feature works, but I can't make a git commit until it's working properly.
+		[done: 12/4/22] The card is a sentence card, but it's under the 'words' group in the db file.
+		[done: 12/4/22] We need the card to go under the 'sentence' group and for the card to be loaded properly.
+		[done: 12/4/22] I think the audio or image didn't work when we used he proper group.
+
+	Make sentence mode show the tick and show the text before showing the answer.
+
 	Make a Read a Long feature, so it will highlight words as they are spoken on the audio.
-		I have already wrote out a basic implementation that works here.
+		As seen above, I have made the PC proram TeachingTinaReadAlongTimingCreator which is still really basic, but allows us to create the timings.
+		I still need to make that program export the timings, and to read in new audio and sentences.
+		I've left that step out, because I want to work on getting android to highlight words as well, then I can work on the bridge of saving and reading the timings.
+
+		Ages ago I wrote out a basic implementation that works here, although it may be useless now, we'll see I guess.
 		/home/simon/MyStuff/Programming/eclipse-workspace/TeachingTinaPC/src/dev/simonslater/tinasflashcards/audio/ReadAlongTiming.java
+
+
+	Highlight the word she taps on to hear the audio. Make the word turn red.
+
+
+Make a database media checker:
+	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
+	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
+		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
 
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.

@@ -8,10 +8,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.View;
@@ -33,6 +37,8 @@ import libteachingtinadbmanager.CardDBManager;
 import libteachingtinadbmanager.CardDBTagManager;
 import libteachingtinadbmanager.DeckSettings;
 import libteachingtinadbmanager.ReadingLessonDeck;
+import libteachingtinadbmanager.SentenceAnalyzer;
+import libteachingtinadbmanager.WordWithIndexes;
 
 public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     protected String typed_string = "";
@@ -41,6 +47,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     Button clear_user_input;
     Button btn_spelling_hint;
     boolean is_spelling_hint_enabled = false;
+    boolean is_answer_shown = false;
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
     ReadingLessonDeck reading_spelling_deck;
@@ -92,26 +99,13 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 
     public void AddContent(ArrayList<String> list) {
+        // Do nothing.
+        // This There's no need for this method as we show the card's content differently for each question and answer for each mode(reading mode, spelling mode, sentence mode).
 
-        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
-            // Display just the word.
-            String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
-            this.txtTyped.setText( word );
-            scroll_layout.addView( this.txtTyped );
-
-        } else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
-            // It's spelling mode, so add the components in the right order.
-
-            DisplayImagesAndAudio();
-            // Setup the parameters to make the hint button span the columns of the audio buttons
-            TableRow.LayoutParams row_layout_parameters = new TableRow.LayoutParams();
-            row_layout_parameters.span = audioArr.size();
-
-            // Add the hint button to the table row.
-            TableRow hint_tr = new TableRow( this );
-            hint_tr.addView( btn_spelling_hint, row_layout_parameters );
-            this.audio_buttons_table_layout.addView( hint_tr );
-        }
+        //if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        //} else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        //} else if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
+        //}
     }
 
 
@@ -123,12 +117,15 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
     @Override
     public void DisplayQuestion() {
+        this.is_answer_shown = false;
         font_size = DEFAULT_FONT_SIZE * 2;
 
         if( deck.getCurrentCard().group.getGroupName().compareTo("Words") == 0 ) {
             if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
                 // Display just the word on the screen.
-                AddContent( reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ) );
+                String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+                this.txtTyped.setText( word );
+                scroll_layout.addView( this.txtTyped );
             }
             else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
                 // Spelling mode.
@@ -228,8 +225,15 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
 
                 // Add the other components
-                //AddContent( reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() ) );
-                AddContent( reading_spelling_deck.getCardImage( reading_spelling_deck.getCurrentCard() ) );
+                DisplayImagesAndAudio();
+                // Setup the parameters to make the hint button span the columns of the audio buttons
+                TableRow.LayoutParams hint_row_layout_parameters = new TableRow.LayoutParams();
+                hint_row_layout_parameters.span = audioArr.size();
+
+                // Add the hint button to the table row.
+                TableRow hint_tr = new TableRow( this );
+                hint_tr.addView( btn_spelling_hint, hint_row_layout_parameters );
+                this.audio_buttons_table_layout.addView( hint_tr );
 
 
                 // Add all the components in the desired order.
@@ -237,6 +241,36 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 scroll_layout.setGravity( Gravity.FILL_HORIZONTAL );
                 scroll_layout.addView( this.txtTyped );
                 scroll_layout.addView( letters_table_layout );
+            }
+        } else if( deck.getCurrentCard().group.getGroupName().compareTo("Sentence") == 0 ) {
+            if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
+                String sentence = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+
+                // Give each word it's own on click listener so the user can hear the word by it's self when they click it.
+                ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
+                SpannableStringBuilder spannable_string = new SpannableStringBuilder();
+                spannable_string.append(sentence);
+                for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
+                    String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
+                    String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
+                    // Set the on click action to play the audio file.
+                    MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path );
+
+                    int start = words_list_with_indexes.get( i ).getStartingIndex();
+                    int end   = words_list_with_indexes.get( i ).getEndingIndex();
+                    spannable_string.setSpan( clickable_span, start, end, 0 );
+                }
+
+                TextView txtReadAlong = new TextView(this);
+
+                // This line is also needed for making the text clickable.
+                txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
+
+                txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
+                txtReadAlong.setTypeface(FONT_TYPEFACE);
+                txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
+                txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
+                scroll_layout.addView(txtReadAlong);
             }
         }
     }
@@ -331,7 +365,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         scroll_layout.addView( this.audio_buttons_table_layout );
     }
     public void ShowAnswerPressed() {
-        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        this.is_answer_shown = true;
+        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ||
+            ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
+
             // Horizontal line - stretch horizontally.
             // Get the image and stretch it to the layout's width
             Drawable dr = getResources().getDrawable(R.drawable.horizontal_line);
@@ -348,7 +385,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             bt_show_answer.setVisibility(View.GONE);
             bt_correct.setVisibility(View.VISIBLE);
             bt_incorrect.setVisibility(View.VISIBLE);
-
         }
         else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
             String user_input = getTypedString().toLowerCase();
@@ -388,9 +424,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 reading_spelling_deck.nextQuestion(false, true);
                 is_spelling_hint_enabled = true;
             }
+            clearUserInput();
             NextQuestion();
-            setTypedString("");
-            displayUserInput();
         }
     }
 
@@ -580,6 +615,53 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             // With the spelling hint flag enabled, the displayUserInput will be ran and will show the hint.
             is_spelling_hint_enabled = true;
             displayUserInput();
+        }
+    }
+
+    // Play the audio file for the word we have tapped on.
+    class MyClickableSpan extends ClickableSpan {
+        private String word;
+        private String audio_file_path;
+
+        MyClickableSpan( String word, String audio_file_path ) {
+            // Set the audio file
+            this.word = word;
+            this.audio_file_path = audio_file_path;
+
+        }
+
+        @Override
+        public void onClick(View widget) {
+            if( is_answer_shown == false ) {
+                // When in sentence mode
+                // They have not heard the audio and must have clicked
+                // the word for a hint, so set the card to failed.
+                reading_spelling_deck.nextQuestion(false, false);
+                AnimationCrossesFalling();
+            }
+            // Play Audio File.
+            MediaPlayer audio = new MediaPlayer();
+            try {
+                audio.setDataSource( this.audio_file_path );
+                audio.prepare();
+                audio.start();
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            /** TODO:
+             * Highlight the word red when we tap it.
+             */
+        }
+
+        @Override
+        // Stop it from changing the text to looking like a link.
+        public void updateDrawState( TextPaint text_paint ) {
+            // Do nothing.
+            // Handy to keep these for use when debugging.
+            //text_paint.setColor( Color.RED );
+            //text_paint.setUnderlineText( true );
         }
     }
 }
