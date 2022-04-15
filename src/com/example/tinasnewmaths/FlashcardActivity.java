@@ -61,6 +61,7 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	protected String audio_file;
 	protected MediaPlayer audio;
 	protected boolean autostart;
+	protected long start_time_in_millis = -1;
 
 	public MyAudioButton(Context context, String audio_file, boolean autostart) {
 		super(context);
@@ -82,6 +83,7 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 		setOnClickListener(this);
 
 		if( autostart ) {
+			start_time_in_millis = System.currentTimeMillis();
 			audio.start();
 		}
 	}
@@ -89,6 +91,7 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		//play media file.
+		start_time_in_millis = System.currentTimeMillis();
 		audio.start();
 	}
 
@@ -98,6 +101,14 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	
 	public String getAudioFile() {
 		return audio_file;
+	}
+
+	long getStartTimeInMillis() {
+		return start_time_in_millis;
+	}
+
+	int getDuration() {
+		return audio.getDuration();
 	}
 	
 }
