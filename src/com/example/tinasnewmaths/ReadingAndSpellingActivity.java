@@ -28,7 +28,11 @@ import android.widget.TextView;
 
 import com.plattysoft.leonids.ParticleSystem;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -44,6 +48,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     protected String typed_string = "";
     ArrayList<Button> spelling_buttons;
     TextView txtTyped;
+    TextView txtReadAlong;
     Button clear_user_input;
     Button btn_spelling_hint;
     boolean is_spelling_hint_enabled = false;
@@ -55,7 +60,9 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     private float LETTER_BUTTONS_FONT_SIZE = 32f;
     private Typeface FONT_TYPEFACE = Typeface.SANS_SERIF;
     private TableLayout audio_buttons_table_layout;
-
+    private boolean is_audio_playing = false;
+    private SpannableStringBuilder spannable_string;
+    private ArrayList<ReadAlongTiming> read_along_timings;
 
     // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
     @SuppressLint("MissingSuperCall")
@@ -243,10 +250,58 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
             String sentence = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
 
+            // Load the timings for highlighting the words in time with the audio.
+
+            // Get the read along timings file path as a string
+            String temp_read_along_tag = reading_spelling_deck.getCardReadAlongTimings( reading_spelling_deck.getCurrentCard() ).get(0);
+            // There's probably only one read-along-timings file, so get that one's path.
+            String read_along_timings_file_name = CardDBTagManager.getReadAlongTimingsFilename(temp_read_along_tag);
+            String read_along_timings_file_path = db_media_folder + "/" + read_along_timings_file_name;
+
+            // Open the timings file.
+            String line = "";
+            BufferedReader br = null;
+            try{
+                br = new BufferedReader( new FileReader(read_along_timings_file_path));
+
+                // Read in the string of timings.
+                // There's only one line in the timings file, so just read that.
+                line = br.readLine();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally{
+                if( br != null ) {
+                    try {
+                        br.close();
+                    } catch( IOException e ) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            // Split the string by tabs as that's what's seperating each timing.
+            String[] str_timings_list = line.split("\t");
+
+            // Convert the string into an ArrayList of Timing objects.
+            // We will then use this list to make ReadAlongTiming objects.
+            ArrayList<Timings> timings_list = new ArrayList<Timings>();
+            for( int i = 0; i < (str_timings_list.length /2); i++ ) {
+                long start_position = Long.parseLong( str_timings_list[ i*2  ] );
+                long end_position   = Long.parseLong( str_timings_list[(i*2)+1] );
+
+                Timings t = new Timings( start_position, end_position );
+                timings_list.add( t );
+            }
+
+
             // Give each word it's own on click listener so the user can hear the word by it's self when they click it.
+            // and add the word timings to the read_along_timings ArrayList.
             ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
-            SpannableStringBuilder spannable_string = new SpannableStringBuilder();
+            spannable_string = new SpannableStringBuilder();
             spannable_string.append(sentence);
+            read_along_timings = new ArrayList<ReadAlongTiming>();
             for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
                 String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
                 String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
@@ -256,9 +311,12 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 int start = words_list_with_indexes.get( i ).getStartingIndex();
                 int end   = words_list_with_indexes.get( i ).getEndingIndex();
                 spannable_string.setSpan( clickable_span, start, end, 0 );
+
+                // Load the timings for highlighting the words in time with the audio.
+                read_along_timings.add(new ReadAlongTiming(timings_list.get(i).start_in_millis, timings_list.get(i).end_in_millis, words_list_with_indexes.get(i) ));
             }
 
-            TextView txtReadAlong = new TextView(this);
+            txtReadAlong = new TextView(this);
 
             // This line is also needed for making the text clickable.
             txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
@@ -321,9 +379,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             audio_filepath = db_media_folder + "/" + audio_filepath;
 
             if( i == 0 ) {
-                audioArr.add(new MyAudioButton(this, audio_filepath, true));
+                boolean is_highlighting_enabled = ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() );
+                audioArr.add(new MyAudioButtonWithWordHighlighting(this, audio_filepath, true, is_highlighting_enabled));
             } else {
-                audioArr.add(new MyAudioButton(this, audio_filepath, false));
+                audioArr.add(new MyAudioButtonWithWordHighlighting(this, audio_filepath, false, false));
             }
         }
 
@@ -679,5 +738,126 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             //text_paint.setUnderlineText( true );
         }
     }
+
+    /**
+     * Colour every word in either red or black, depending on the timings we give it.
+     * Used for highlight words in a sentence once the audio has started playing to simulate a read-along with me feature.
+     */
+    class ThreadHighlightWord extends Thread {
+        MyAudioButton audio_button;
+        public boolean keep_going = true;
+
+        ThreadHighlightWord( MyAudioButton audio_button ) {
+            this.audio_button = audio_button;
+        }
+        public void run() {
+            keep_going = true;
+            while( keep_going ) {
+                if( audio_button.getDuration() == -1 ) {
+                    // Do nothing, although this should never happen, keep it here for debugging, just in case.
+                    System.out.println("Audio may have not been initialized. Currently in ThreadHighlightWord");
+                }
+
+                long duration = audio_button.getDuration();
+                long current_position = System.currentTimeMillis() - audio_button.getStartTimeInMillis();
+
+                if( current_position >= duration ) {
+                    keep_going = false;
+                }
+                for (int i = 0; i < read_along_timings.size(); i++) {
+                    read_along_timings.get(i).colourLabel( current_position );
+                }
+            }
+
+        }
+    }
+
+    /**
+     * This button can highlight words in a sentence once the audio has started playing to simulate a "read-along with me" feature.
+     */
+    class MyAudioButtonWithWordHighlighting extends MyAudioButton {
+        public boolean keep_going = true;
+        public boolean is_highlighting_enabled = false;
+
+        public MyAudioButtonWithWordHighlighting( Context context, String audio_file, boolean autostart, boolean is_highlighting_enabled ) {
+            super(context, audio_file, autostart);
+            if( autostart && is_highlighting_enabled ) {
+                ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this );
+                thread_highlight_word.start();
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            //play media file.
+            if( ! audio.isPlaying() ) {
+                start_time_in_millis = System.currentTimeMillis();
+                audio.start();
+                if( is_highlighting_enabled ) {
+                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord(this);
+                    thread_highlight_word.start();
+                }
+            }
+        }
+    }
+
+    class ReadAlongTiming {
+        private boolean is_colour_red = false;
+        private long start_position_in_millis = -1;
+        private long end_position_in_millis = -1;
+        private WordWithIndexes word_with_indexes;
+
+        ReadAlongTiming( long start_position_in_millis, long end_position_in_millis, WordWithIndexes word_with_indexes ) {
+            this.start_position_in_millis = start_position_in_millis;
+            this.end_position_in_millis   = end_position_in_millis;
+            this.word_with_indexes = word_with_indexes;
+        }
+        public long getStartPositionInMillis() {
+            return this.start_position_in_millis;
+        }
+        public long getEndPositionInMillis() {
+            return this.end_position_in_millis;
+        }
+
+        public void colourLabel( long position_in_microseconds ) {
+            if( position_in_microseconds >= getStartPositionInMillis() && position_in_microseconds <= getEndPositionInMillis() ) {
+                if( is_colour_red == false ) {
+                    is_colour_red = true;
+                    spannable_string.setSpan( new ForegroundColorSpan(Color.RED), word_with_indexes.getStartingIndex(), word_with_indexes.getEndingIndex(), 0);
+                    // We can't touch the TextView from this thread, so use this method to run it on the Ui's thread.
+                    runOnUiThread( new SetReadAlongColour( spannable_string ) );
+                }
+            } else {
+                if( is_colour_red ) {
+                    is_colour_red = false;
+                    spannable_string.setSpan( new ForegroundColorSpan(Color.BLACK), word_with_indexes.getStartingIndex(), word_with_indexes.getEndingIndex(), 0);
+                    runOnUiThread( new SetReadAlongColour( spannable_string ) );
+                }
+            }
+        }
+
+        /**
+         * Inner class dedicated to updating the txtReadAlong TextView
+         * We need to access it from the same UI thread, so passing an instance
+         * of this to runOnUiThread does that for us.
+         */
+        class SetReadAlongColour extends Thread {
+            private SpannableStringBuilder spanny;
+            SetReadAlongColour(SpannableStringBuilder spanny) {
+                this.spanny = spanny;
+            }
+            public void run() {
+                txtReadAlong.setText(spanny ,TextView.BufferType.SPANNABLE);
+            }
+        }
+    }
 }
 
+class Timings {
+    public long start_in_millis;
+    public long end_in_millis;
+    Timings( long start_in_millis, long end_in_millis ) {
+        this.start_in_millis = start_in_millis;
+        this.end_in_millis = end_in_millis;
+    }
+}
