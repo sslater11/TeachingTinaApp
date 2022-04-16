@@ -85,6 +85,7 @@ My steps to get this up and running so far.
 
 	[done: 16/4/22]	 Highlight the word she taps on to hear the audio. Make the word turn red.
 
+Make the reading mode word highlight red and play the card's audio when the user taps on the word.
 
 Play the audio "Spell the word..." for every time the spelling mode shows a card. Then auto play word's audio e.g. "cat", so it will say "Spell the word..." "cat"
 
