@@ -305,15 +305,20 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
                 String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
                 String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
-                // Set the on click action to play the audio file.
-                MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path );
 
-                int start = words_list_with_indexes.get( i ).getStartingIndex();
-                int end   = words_list_with_indexes.get( i ).getEndingIndex();
-                spannable_string.setSpan( clickable_span, start, end, 0 );
+                int start_index = words_list_with_indexes.get( i ).getStartingIndex();
+                int end_index   = words_list_with_indexes.get( i ).getEndingIndex();
 
                 // Load the timings for highlighting the words in time with the audio.
-                read_along_timings.add(new ReadAlongTiming(timings_list.get(i).start_in_millis, timings_list.get(i).end_in_millis, words_list_with_indexes.get(i) ));
+                long start_in_millis = timings_list.get(i).start_in_millis;
+                long end_in_millis   = timings_list.get(i).end_in_millis;
+                ReadAlongTiming highlight_timing = new ReadAlongTiming( start_in_millis, end_in_millis, words_list_with_indexes.get(i) );
+                read_along_timings.add( highlight_timing );
+
+                // Set the on click action to play the audio file.
+                MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path, highlight_timing, words_list_with_indexes.get(i) );
+
+                spannable_string.setSpan( clickable_span, start_index, end_index, 0 );
             }
 
             txtReadAlong = new TextView(this);
@@ -696,11 +701,15 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     class MyClickableSpan extends ClickableSpan {
         private String word;
         private String audio_file_path;
+        private ReadAlongTiming read_along_timing;
+        private WordWithIndexes word_with_indexes; // Used to pass the indexes of the word to highlight.
 
-        MyClickableSpan( String word, String audio_file_path ) {
+        MyClickableSpan( String word, String audio_file_path, ReadAlongTiming read_along_timing, WordWithIndexes word_with_indexes ) {
             // Set the audio file
             this.word = word;
             this.audio_file_path = audio_file_path;
+            this.read_along_timing = read_along_timing;
+            this.word_with_indexes = word_with_indexes;
 
         }
 
@@ -714,19 +723,24 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 AnimationCrossesFallingShort();
             }
             // Play Audio File.
-            MediaPlayer audio = new MediaPlayer();
+            MyMediaPlayer audio = new MyMediaPlayer();
             try {
                 audio.setDataSource( this.audio_file_path );
                 audio.prepare();
                 audio.start();
+                // Highlight the word we have clicked on so the user has visual feedback.
+                if( read_along_timing != null ) {
+                    ArrayList<ReadAlongTiming> t = new ArrayList<ReadAlongTiming>();
+                    t.add( new ReadAlongTiming( 0, audio.getDuration(), this.word_with_indexes) );
+
+                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( audio, t );
+                    thread_highlight_word.start();
+                }
 
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            /** TODO:
-             * Highlight the word red when we tap it.
-             */
         }
 
         @Override
@@ -744,31 +758,33 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
      * Used for highlight words in a sentence once the audio has started playing to simulate a read-along with me feature.
      */
     class ThreadHighlightWord extends Thread {
-        MyAudioButton audio_button;
+        MyMediaPlayer audio;
         public boolean keep_going = true;
+        ArrayList<ReadAlongTiming> read_along_timings;
 
-        ThreadHighlightWord( MyAudioButton audio_button ) {
-            this.audio_button = audio_button;
+        ThreadHighlightWord( MyMediaPlayer audio, ArrayList<ReadAlongTiming> read_along_timings) {
+            this.audio = audio;
+            this.read_along_timings = read_along_timings;
         }
         public void run() {
-            keep_going = true;
+            this.keep_going = true;
             while( keep_going ) {
-                if( audio_button.getDuration() == -1 ) {
+                if( this.audio.getDuration() == -1 ) {
                     // Do nothing, although this should never happen, keep it here for debugging, just in case.
                     System.out.println("Audio may have not been initialized. Currently in ThreadHighlightWord");
                 }
 
-                long duration = audio_button.getDuration();
-                long current_position = System.currentTimeMillis() - audio_button.getStartTimeInMillis();
+                long current_position = System.currentTimeMillis() - this.audio.getStartTimeInMillis();
 
-                if( current_position >= duration ) {
-                    keep_going = false;
+                // Plus 1 to current duration so we know that the colourLabel
+                // will be called after the audio has finished playing too.
+                if( current_position >= audio.getDuration() + 1 ) {
+                    this.keep_going = false;
                 }
-                for (int i = 0; i < read_along_timings.size(); i++) {
-                    read_along_timings.get(i).colourLabel( current_position );
+                for (int i = 0; i < this.read_along_timings.size(); i++) {
+                    this.read_along_timings.get(i).colourLabel( current_position );
                 }
             }
-
         }
     }
 
@@ -781,8 +797,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         public MyAudioButtonWithWordHighlighting( Context context, String audio_file, boolean autostart, boolean is_highlighting_enabled ) {
             super(context, audio_file, autostart);
+            this.is_highlighting_enabled = is_highlighting_enabled;
+            // Highlight our words as the audio plays.
             if( autostart && is_highlighting_enabled ) {
-                ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this );
+                ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), read_along_timings );
                 thread_highlight_word.start();
             }
         }
@@ -791,10 +809,9 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         public void onClick(View v) {
             //play media file.
             if( ! audio.isPlaying() ) {
-                start_time_in_millis = System.currentTimeMillis();
                 audio.start();
-                if( is_highlighting_enabled ) {
-                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord(this);
+                if( this.is_highlighting_enabled ) {
+                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), read_along_timings );
                     thread_highlight_word.start();
                 }
             }
@@ -819,8 +836,13 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             return this.end_position_in_millis;
         }
 
-        public void colourLabel( long position_in_microseconds ) {
-            if( position_in_microseconds >= getStartPositionInMillis() && position_in_microseconds <= getEndPositionInMillis() ) {
+        /**
+         * Pass this the audio's current position of playback in millis and it will colour
+         * the word red if we are inbetween the starting and ending millis for the read along timing.
+         * @param position_in_millis
+         */
+        public void colourLabel( long position_in_millis ) {
+            if( position_in_millis >= getStartPositionInMillis() && position_in_millis <= getEndPositionInMillis() ) {
                 if( is_colour_red == false ) {
                     is_colour_red = true;
                     spannable_string.setSpan( new ForegroundColorSpan(Color.RED), word_with_indexes.getStartingIndex(), word_with_indexes.getEndingIndex(), 0);

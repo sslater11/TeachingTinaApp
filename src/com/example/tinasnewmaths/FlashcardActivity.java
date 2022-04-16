@@ -57,18 +57,31 @@ import android.widget.TextView;
 	}
 }*/
 
+class MyMediaPlayer extends MediaPlayer {
+	protected long start_time_in_millis = -1;
+
+	@Override
+	public void start() {
+		this.start_time_in_millis = System.currentTimeMillis();
+		super.start();
+	}
+
+	public long getStartTimeInMillis() {
+		return this.start_time_in_millis;
+	}
+}
+
 class MyAudioButton extends ImageButton implements View.OnClickListener {
 	protected String audio_file;
-	protected MediaPlayer audio;
+	protected MyMediaPlayer audio;
 	protected boolean autostart;
-	protected long start_time_in_millis = -1;
 
 	public MyAudioButton(Context context, String audio_file, boolean autostart) {
 		super(context);
 
 		setAudioFile( audio_file );
-		
-		audio = new MediaPlayer();
+
+		audio = new MyMediaPlayer();
 		try {
 			audio.setDataSource( getAudioFile() );
 			audio.prepare();
@@ -83,7 +96,6 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 		setOnClickListener(this);
 
 		if( autostart ) {
-			start_time_in_millis = System.currentTimeMillis();
 			audio.start();
 		}
 	}
@@ -91,7 +103,6 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		//play media file.
-		start_time_in_millis = System.currentTimeMillis();
 		audio.start();
 	}
 
@@ -104,13 +115,16 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 	}
 
 	long getStartTimeInMillis() {
-		return start_time_in_millis;
+		return audio.getStartTimeInMillis();
 	}
 
 	int getDuration() {
 		return audio.getDuration();
 	}
-	
+
+	MyMediaPlayer getMediaPlayer() {
+		return this.audio;
+	}
 }
 
 public class FlashcardActivity extends FlashcardBaseActivity {
