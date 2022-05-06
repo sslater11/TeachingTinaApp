@@ -85,15 +85,42 @@ My steps to get this up and running so far.
 
 	[done: 16/4/22]	 Highlight the word she taps on to hear the audio. Make the word turn red.
 
+
+
+
+
+
 Make the reading mode word highlight red and play the card's audio when the user taps on the word.
 
 Play the audio "Spell the word..." for every time the spelling mode shows a card. Then auto play word's audio e.g. "cat", so it will say "Spell the word..." "cat"
 
+
 Make a database media checker:
 	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
+
 	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
 		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
 
+	Allow font changes and capitalise and lower case the word/sentence, because if a card shows as 'll', is it 2 L or 2 I letters or even LI or IL?
+
+	Check if the file in the tag is missing.
+
+	Update the Incomplete cards list once a card is completed
+		I'm thinking keep it in the incomplete list and highlight the background colour of each line to green for each completed card in the incomplete card list.
+		Or do I move it straight to the completed cards list?
+
+		I think move it to the completed cards list once we click the save button, and keep it in the incomplete list whilst it's not been saved.
+
+	I think the incomplete list should display old cards first.
+	The completed cards list should show the newest cards at the top, so in reverse order.
+
+Create the tools to make flashcards:
+	Hannah will probably require a gui to make creating flashcards easier. It could also avoid some bugs if she edit's the database files incorrectly.
+	After running the reading lesson creator,
+	She will open the flashcard in the app and it will look for any missing media for flashcards.
+	It will display one flashcard at a time and she can drag and drop images and audio into it.
+	Move the code for the 'read along timings creator' into this program so she can do that easily.
+	Have a way to ignore certain sounds, and to remind her of those as she creates lessons?
 
 Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
 Then make the library a git project too.
@@ -150,6 +177,7 @@ Add a statistics tracker to tina's app.
 		And in each deck folder, have a stats folder to hold the stats fr each day.
 
 Rename the app TeachingTina
+move the code out from src/com/example/tinasnewmaths/ to just com/teachingtina/
 
 Update the DeckSettings so that I actually understand what all the settings do, and update the SettingsActivity so it can change all of the settings.
 Maybe change the deck settings over to use Java's Properties class.
@@ -174,3 +202,7 @@ Add a daily card count on the main menu screen.
 
 Add a speaking alarm that says "Tina, do your reading practice". It should go off twice a day.
 
+Enhancement:
+	Make the CardDBManager extract data from a string, instead of a file, as it's currently reading from a file for every
+	group of letters, so consonant pairs, double vowels, words, etc. It's a new file read for all of those and it should really
+	just be working from a string stored in memory.
