@@ -1,8 +1,8 @@
 # Teaching Tina
-##What is this?
+## What is this?
 This is an Android app I'm creating to teach my severely autistic sister how to read, and other things.
 It's a flashcard app that can display text, images and audio.
-It also has a maths mode for practicing addition.
+It also has a maths mode for practising addition.
 
 It uses both Deep Practice and Spaced Repetition to teach word sounds and words.
 
@@ -22,7 +22,7 @@ This increases the amount of times she sees the words, and makes sure she rememb
 # Spaced Repetition
 To understand Spaced Repetition, read up on how Anki works, as it's the best free open source flashcard program on earth :).
 
-When a flashcard is answered accruately, it's scheduled to be reviewed at a later date.
+When a flashcard is answered accurately, it's scheduled to be reviewed at a later date.
 If it's answered correctly again, it's scheduled for an even longer date.
 That is the basis of spaced repetition, constantly seeing a card at longer intervals to remind you of it just before you forget it.
 
