@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TinasNewMaths.iml" filepath="$PROJECT_DIR$/TinasNewMaths.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeachingTinaApp.iml" filepath="$PROJECT_DIR$/.idea/modules/TeachingTinaApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeachingTinaApp.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/TeachingTinaApp.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeachingTinaApp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/TeachingTinaApp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TeachingTinaApp.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/TeachingTinaApp.unitTest.iml" />
     </modules>
   </component>
 </project>
-
