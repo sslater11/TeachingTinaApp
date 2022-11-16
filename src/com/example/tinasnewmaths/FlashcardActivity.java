@@ -102,7 +102,7 @@ class MyAudioButton extends ImageButton implements View.OnClickListener {
 
 		setImageResource(R.drawable.ic_action_play);
 
-		setOnClickListener(this);
+		setOnClickListener( this );
 
 		if( autostart ) {
 			audio.start();

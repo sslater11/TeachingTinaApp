@@ -282,7 +282,7 @@ public class MenuActivity extends Activity {
 					} else if( db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_KEYBOARD ) {
 						d = new KeyboardDeck       ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
 					} else if( db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_READING_AND_SPELLING) {
-						d = new ReadingLessonDeck ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
+						d = new FlashcardDeck       ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
 					} else {
 						// This should never happen.
 						System.out.println("Error: deck gui type is wrong.");

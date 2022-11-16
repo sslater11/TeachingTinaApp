@@ -10,7 +10,12 @@ You should have received a copy of the GNU General Public License along with thi
 package com.example.tinasnewmaths;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,6 +24,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
@@ -44,14 +51,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import libteachingtinadbmanager.Card;
 import libteachingtinadbmanager.CardDBManager;
 import libteachingtinadbmanager.CardDBTagManager;
 import libteachingtinadbmanager.DeckSettings;
+import libteachingtinadbmanager.ReadingLessonCard;
 import libteachingtinadbmanager.ReadingLessonDeck;
 import libteachingtinadbmanager.SentenceAnalyzer;
 import libteachingtinadbmanager.WordWithIndexes;
+import libteachingtinadbmanager.sqlite_db.SQLiteReadingLessonHandler;
 
 public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     protected String typed_string = "";
@@ -64,7 +74,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     boolean is_answer_shown = false;
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
-    ReadingLessonDeck reading_spelling_deck;
+    ReadingLessonDeck deck;
     private float USER_TEXT_FONT_SIZE = 72f;
     private float LETTER_BUTTONS_FONT_SIZE = 32f;
     private Typeface FONT_TYPEFACE = Typeface.SANS_SERIF;
@@ -72,6 +82,12 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     private boolean is_audio_playing = false;
     private SpannableStringBuilder spannable_string;
     private ArrayList<ReadAlongTiming> read_along_timings;
+
+    private SQLiteDatabase reading_lesson_database;
+    private int db_version = 1;
+    String sqlite_db_file;
+
+    private MyUiUpdateHandler my_ui_handler; // Helps us update the UI from another thread.
 
     // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
     @SuppressLint("MissingSuperCall")
@@ -82,11 +98,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         db_config_file  = new File( getIntent().getStringExtra("deck_settings_file_path") );
         db_media_folder = new File( str_db_file.replace(".txt", "") );
 
-        settings = CardDBManager.getConfig(db_config_file);
-        group_names = CardDBManager.readDBGetGroupNames(db_file, settings);
-        System.out.println(group_names);
-        ArrayList<Card> tmp_deck = CardDBManager.readDBGetGroup(db_file, settings, group_names.get(0));
-        reading_spelling_deck = new ReadingLessonDeck( tmp_deck, db_file, settings);
+        my_ui_handler = new MyUiUpdateHandler();
+
+        sqlite_db_file = db_file.getParent() + File.separator + "ReadingLessons.db";
+        loadCardsFromSQLiteDatabase();
+
         setContentView(R.layout.activity_reading_and_spelling);
 
         // Create the spelling hint button.
@@ -111,24 +127,102 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         super.onCreate( savedInstanceState, R.layout.activity_reading_and_spelling);
 
         this.bt_show_answer.setText( "Check Answer" );
+    }
 
+    public void loadCardsFromSQLiteDatabase() {
+        ArrayList<ReadingLessonCard> reading_lesson_cards = new ArrayList<ReadingLessonCard>();
+        // Open the SQLite Database
+        ReadingLessonDBHandler db_helper = new ReadingLessonDBHandler( this, sqlite_db_file, db_version );
+        reading_lesson_database = db_helper.getReadableDatabase();
+        Cursor cursor = reading_lesson_database.rawQuery("SELECT * FROM " + SQLiteReadingLessonHandler.TABLE_NAME + ";", new String[]{} );
+
+        if( cursor.getCount() > 0 ) {
+            // We have cards to learn.
+            cursor.moveToFirst();
+            while( ! cursor.isAfterLast() ) {
+                int card_id                    = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_ID) );
+                long date_in_millis            = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.DATE_IN_MILLIS) );
+                float box_num                  = cursor.getFloat(  cursor.getColumnIndex(SQLiteReadingLessonHandler.BOX_NUM) );
+                int reading_lesson_level       = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.READING_LESSON_LEVEL) );
+                String sound_type              = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.SOUND_TYPE) );
+                String sound_word_or_sentence  = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.SOUND_WORD_OR_SENTENCE) );
+                int id_of_linked_card          = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.ID_OF_LINKED_CARD) );
+                int is_spelling_mode_int       = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.IS_SPELLING_MODE) );
+                boolean is_spelling_mode;
+                if( is_spelling_mode_int == 0 ) {
+                    is_spelling_mode = false;
+                } else {
+                    is_spelling_mode = true;
+                }
+
+                String card_text               = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_TEXT) );
+                String card_images             = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_IMAGES) );
+                String card_audio              = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_AUDIO) );
+                String card_read_along_timings = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_READ_ALONG_TIMINGS) );
+                cursor.moveToNext();
+
+                // Create card.
+                ReadingLessonCard card = new ReadingLessonCard(
+                        card_id,
+                        date_in_millis,
+                        box_num,
+                        reading_lesson_level,
+                        sound_type,
+                        sound_word_or_sentence,
+                        id_of_linked_card,
+                        is_spelling_mode,
+
+                        card_text,
+                        card_images,
+                        card_audio,
+                        card_read_along_timings
+                );
+
+                reading_lesson_cards.add( card );
+            }
+        } else {
+            // No cards found.
+            System.out.println( "No cards found!" );
+        }
+
+        reading_lesson_database.close();
+
+        deck = new ReadingLessonDeck( reading_lesson_cards );
+    }
+
+    public void saveCardsToSQLiteDatabase( ArrayList<ReadingLessonCard> reading_lesson_cards ) {
+        ReadingLessonDBHandler db_helper = new ReadingLessonDBHandler( this, sqlite_db_file, db_version );
+        reading_lesson_database = db_helper.getWritableDatabase();
+
+        long date_in_millis = new Date().getTime();
+        for( int i = 0; i < reading_lesson_cards.size(); i++ ) {
+            reading_lesson_cards.get( i ).update( date_in_millis );
+            float box_num = reading_lesson_cards.get( i ).getBoxNum();
+
+            ContentValues content_values = new ContentValues();
+            content_values.put( "date_in_millis", date_in_millis );
+            content_values.put( "box_num", box_num );
+
+            int card_id = reading_lesson_cards.get( i ).getCardID();
+            String[] str_card_id = new String[]{ card_id + "" };
+            long result = reading_lesson_database.update( SQLiteReadingLessonHandler.TABLE_NAME, content_values, SQLiteReadingLessonHandler.CARD_ID + "=?",  str_card_id );
+            if( result == -1 ) {
+                System.out.println( "Failed to update sqlite database line." );
+            } else {
+                System.out.println( "Successfully updated database." );
+            }
+        }
     }
 
     public void AddContent(ArrayList<String> list) {
         // Do nothing.
         // This There's no need for this method as we show the card's content differently for each question and answer for each mode(reading mode, spelling mode, sentence mode).
-
-        //if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
-        //} else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
-        //} else if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
-        //}
     }
 
 
     public void clearUserInput() {
         setTypedString("");
         txtTyped.setText("");
-        displayUserInput();
     }
 
     @Override
@@ -136,19 +230,76 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         this.is_answer_shown = false;
         font_size = DEFAULT_FONT_SIZE * 2;
 
-        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        if( deck.getCurrentCard().isASentence() ) {
+            String sentence = deck.getCurrentCard().getCardText();
+
+            // Load the timings for highlighting the words in time with the audio.
+
+            // Split the string by tabs as that's what's seperating each timing.
+            String timings = deck.getCurrentCard().getCardReadAlongTimings();
+            String[] str_timings_list = timings.split("\t");
+
+            // Convert the string into an ArrayList of Timing objects.
+            // We will then use this list to make ReadAlongTiming objects.
+            ArrayList<Timings> timings_list = new ArrayList<Timings>();
+            for( int i = 0; i < (str_timings_list.length /2); i++ ) {
+                long start_position = Long.parseLong( str_timings_list[ i*2  ] );
+                long end_position   = Long.parseLong( str_timings_list[(i*2)+1] );
+
+                Timings t = new Timings( start_position, end_position );
+                timings_list.add( t );
+            }
+
+
+            // Give each word it's own onClickListener so the user can hear the word by it's self when they click it.
+            // and add the word timings to the read_along_timings ArrayList.
+            ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
+            spannable_string = new SpannableStringBuilder();
+            spannable_string.append(sentence);
+            read_along_timings = new ArrayList<ReadAlongTiming>();
+            for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
+                String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
+                String audio_file_path = db_media_folder + File.separator + "words" + File.separator + audio_name + ".wav";
+
+                int start_index = words_list_with_indexes.get( i ).getStartingIndex();
+                int end_index   = words_list_with_indexes.get( i ).getEndingIndex();
+
+                // Load the timings for highlighting the words in time with the audio.
+                long start_in_millis = timings_list.get(i).start_in_millis;
+                long end_in_millis   = timings_list.get(i).end_in_millis;
+                ReadAlongTiming highlight_timing = new ReadAlongTiming( start_in_millis, end_in_millis, words_list_with_indexes.get(i) );
+                read_along_timings.add( highlight_timing );
+
+                // Set the on click action to play the audio file.
+                MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path, highlight_timing, words_list_with_indexes.get(i) );
+
+                spannable_string.setSpan( clickable_span, start_index, end_index, 0 );
+            }
+
+            txtReadAlong = new TextView(this);
+
+            // This line is also needed for making the text clickable.
+            txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
+
+            txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
+            txtReadAlong.setTypeface(FONT_TYPEFACE);
+            txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
+            txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
+            scroll_layout.addView(txtReadAlong);
+        }
+        else if( deck.getCurrentCard().isReadingMode() ) {
             // Display just the word on the screen.
-            String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+            String word = deck.getCurrentCard().getCardText();
             this.txtTyped.setText( word );
             scroll_layout.addView( this.txtTyped );
         }
-        else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        else if( deck.getCurrentCard().isSpellingMode() ) {
             // Spelling mode.
             // It's spelling mode, so we need to completely change the layout to spelling mode.
             spelling_buttons = new ArrayList<Button>();
 
             // Get every letter in the word and make a button for it.
-            String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+            String word = deck.getCurrentCard().getCardText();
             for( int i = 0; i < word.length(); i++ ) {
                 char letter = word.charAt(i);
 
@@ -256,91 +407,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             scroll_layout.addView( this.txtTyped );
             scroll_layout.addView( letters_table_layout );
         }
-        if( ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
-            String sentence = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
-
-            // Load the timings for highlighting the words in time with the audio.
-
-            // Get the read along timings file path as a string
-            String temp_read_along_tag = reading_spelling_deck.getCardReadAlongTimings( reading_spelling_deck.getCurrentCard() ).get(0);
-            // There's probably only one read-along-timings file, so get that one's path.
-            String read_along_timings_file_name = CardDBTagManager.getReadAlongTimingsFilename(temp_read_along_tag);
-            String read_along_timings_file_path = db_media_folder + "/" + read_along_timings_file_name;
-
-            // Open the timings file.
-            String line = "";
-            BufferedReader br = null;
-            try{
-                br = new BufferedReader( new FileReader(read_along_timings_file_path));
-
-                // Read in the string of timings.
-                // There's only one line in the timings file, so just read that.
-                line = br.readLine();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally{
-                if( br != null ) {
-                    try {
-                        br.close();
-                    } catch( IOException e ) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            // Split the string by tabs as that's what's seperating each timing.
-            String[] str_timings_list = line.split("\t");
-
-            // Convert the string into an ArrayList of Timing objects.
-            // We will then use this list to make ReadAlongTiming objects.
-            ArrayList<Timings> timings_list = new ArrayList<Timings>();
-            for( int i = 0; i < (str_timings_list.length /2); i++ ) {
-                long start_position = Long.parseLong( str_timings_list[ i*2  ] );
-                long end_position   = Long.parseLong( str_timings_list[(i*2)+1] );
-
-                Timings t = new Timings( start_position, end_position );
-                timings_list.add( t );
-            }
-
-
-            // Give each word it's own on click listener so the user can hear the word by it's self when they click it.
-            // and add the word timings to the read_along_timings ArrayList.
-            ArrayList<WordWithIndexes> words_list_with_indexes = SentenceAnalyzer.getWordsListWithIndexes( sentence );
-            spannable_string = new SpannableStringBuilder();
-            spannable_string.append(sentence);
-            read_along_timings = new ArrayList<ReadAlongTiming>();
-            for( int i = 0; i < words_list_with_indexes.size(); i++ ) {
-                String audio_name = words_list_with_indexes.get(i).getWordWithIgnoredCharactersRemoved().toLowerCase();
-                String audio_file_path = db_media_folder + "/" + audio_name + ".mp3";
-
-                int start_index = words_list_with_indexes.get( i ).getStartingIndex();
-                int end_index   = words_list_with_indexes.get( i ).getEndingIndex();
-
-                // Load the timings for highlighting the words in time with the audio.
-                long start_in_millis = timings_list.get(i).start_in_millis;
-                long end_in_millis   = timings_list.get(i).end_in_millis;
-                ReadAlongTiming highlight_timing = new ReadAlongTiming( start_in_millis, end_in_millis, words_list_with_indexes.get(i) );
-                read_along_timings.add( highlight_timing );
-
-                // Set the on click action to play the audio file.
-                MyClickableSpan clickable_span = new MyClickableSpan( sentence, audio_file_path, highlight_timing, words_list_with_indexes.get(i) );
-
-                spannable_string.setSpan( clickable_span, start_index, end_index, 0 );
-            }
-
-            txtReadAlong = new TextView(this);
-
-            // This line is also needed for making the text clickable.
-            txtReadAlong.setMovementMethod(LinkMovementMethod.getInstance());
-
-            txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
-            txtReadAlong.setTypeface(FONT_TYPEFACE);
-            txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
-            txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
-            scroll_layout.addView(txtReadAlong);
-        }
     }
 
     /*
@@ -365,7 +431,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 */
     public void DisplayImagesAndAudio() {
         // Make an array of images for each image in the flashcard.
-        ArrayList<String> image_list = reading_spelling_deck.getCardImage( reading_spelling_deck.getCurrentCard() );
+        ArrayList<String> image_list = deck.getCurrentCard().getCardImagesAsArrayList();
         for (int i = 0; i < image_list.size(); i++) {
             // Make an image box and add the image.
             imgArr.add(new ImageView(this));
@@ -386,17 +452,27 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
 
         // Make an array of audio buttons for each audio file in the flashcard.
-        ArrayList<String> audio_list = reading_spelling_deck.getCardAudio( reading_spelling_deck.getCurrentCard() );
-        for (int i = 0; i < audio_list.size(); i++) {
+        ArrayList<String> audio_list = deck.getCurrentCard().getCardAudioAsArrayList();
+
+        String card_text = deck.getCurrentCard().getCardText();
+        if( deck.getCurrentCard().isASentence() ) {
+            boolean is_highlighting_enabled = true;
+
             // Make an audio button and add the file's path.
-            String audio_filepath = CardDBTagManager.getAudioFilename(audio_list.get(i));
+            String audio_filepath = CardDBTagManager.getAudioFilename(audio_list.get(0));
             audio_filepath = db_media_folder + "/" + audio_filepath;
 
-            if( i == 0 ) {
-                boolean is_highlighting_enabled = ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() );
-                audioArr.add(new MyAudioButtonWithWordHighlighting(this, audio_filepath, true, is_highlighting_enabled));
-            } else {
-                audioArr.add(new MyAudioButtonWithWordHighlighting(this, audio_filepath, false, false));
+            audioArr.add(new MyAudioButtonWithWordHighlighting(this, card_text, audio_filepath, true, is_highlighting_enabled));
+        }
+        else {
+            for (int i = 0; i < audio_list.size(); i++) {
+                boolean is_highlighting_enabled = true;
+
+                // Make an audio button and add the file's path.
+                String audio_filepath = CardDBTagManager.getAudioFilename(audio_list.get(i));
+                audio_filepath = db_media_folder + File.separator + audio_filepath;
+
+                audioArr.add(new MyAudioButtonWithWordHighlighting(this, card_text, audio_filepath, true, is_highlighting_enabled));
             }
         }
 
@@ -433,11 +509,33 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         scroll_layout.addView( images_layout );
         scroll_layout.addView( this.audio_buttons_table_layout );
     }
+
+    //@Override
+    public void NextQuestion() {
+        // Check if we've finished the deck.
+        if (deck == null) {
+            System.out.println("nulled it here");
+        }
+        if (deck.isLearnt() == false) {
+            // It's not the last card, so continue.
+            ResetQuestionField();
+            DisplayQuestion();
+            EnableButtons();
+        } else {
+            // The deck is empty.
+            // Write the output and go to the finish screen.
+            System.out.println("You finished studying!.");
+
+            saveCardsToSQLiteDatabase( deck.getLearntDeck() );
+
+            Intent openFinishedActivity = new Intent("com.example.tinasnewmaths.FINISHEDACTIVITY");
+            ReadingAndSpellingActivity.this.startActivity(openFinishedActivity);
+        }
+    }
     public void ShowAnswerPressed() {
         this.is_answer_shown = true;
-        if( ReadingLessonDeck.isCardReadingMode( reading_spelling_deck.getCurrentCard() ) ||
-            ReadingLessonDeck.isCardSentenceMode( reading_spelling_deck.getCurrentCard() ) ) {
-
+        if( deck.getCurrentCard().isReadingMode() ||
+            deck.getCurrentCard().isASentence() ) {
             // Horizontal line - stretch horizontally.
             // Get the image and stretch it to the layout's width
             Drawable dr = getResources().getDrawable(R.drawable.horizontal_line);
@@ -455,9 +553,9 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             bt_correct.setVisibility(View.VISIBLE);
             bt_incorrect.setVisibility(View.VISIBLE);
         }
-        else if( ReadingLessonDeck.isCardSpellingMode( reading_spelling_deck.getCurrentCard() ) ) {
+        else if( deck.getCurrentCard().isIsSpellingMode() ) {
             String user_input = getTypedString().toLowerCase();
-            String word = reading_spelling_deck.getCardText(reading_spelling_deck.getCurrentCard()).get(0).toLowerCase();
+            String word = deck.getCurrentCard().getCardText();
 
             // Do nothing if they haven't even typed anything yet.
             if (user_input.length() == 0) {
@@ -472,14 +570,15 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 if (is_spelling_hint_enabled) {
                     // Mark it as wrong, so they have to attempt it again without the spelling hint.
-                    reading_spelling_deck.nextQuestion(false, false);
+                    deck.nextQuestion(false, false);
                 } else {
                     // Since they didn't see a hint, mark it as correct.
-                    reading_spelling_deck.nextQuestion(true, false);
+                    deck.nextQuestion(true, false);
                 }
 
                 // Reset for the next card.
                 is_spelling_hint_enabled = false;
+                clearUserInput();
 
             } else {
                 // Answer is wrong.
@@ -490,10 +589,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 // Mark the card as wrong and stay on the current card.
                 // Set the hint to true so they can see the word.
-                reading_spelling_deck.nextQuestion(false, true);
+                deck.nextQuestion(false, true);
                 is_spelling_hint_enabled = true;
+                clearUserInput();
+                displayUserInput();
             }
-            clearUserInput();
             NextQuestion();
         }
     }
@@ -535,7 +635,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Stop the user from tapping the buttons whilst it's doing stuff.
         DisableButtons();
         clearUserInput();
-        reading_spelling_deck.nextQuestion(true, false);
+        deck.nextQuestion(true, false);
         NextQuestion();
         AnimationExplodingTicks();
     }
@@ -546,7 +646,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Stop the user from tapping the buttons whilst it's doing stuff.
         DisableButtons();
         clearUserInput();
-        reading_spelling_deck.nextQuestion(false, false);
+        deck.nextQuestion(false, false);
         NextQuestion();
         AnimationCrossesFalling();
     }
@@ -596,7 +696,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
    */
     public void displayUserInput() {
         String user_input = getTypedString();
-        String word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+        String word = deck.getCurrentCard().getCardText();
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         boolean keep_going = true;
@@ -672,7 +772,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         public boolean isLetterCorrect() {
             String typed_word = getTypedString();
-            String answer_word = reading_spelling_deck.getCardText( reading_spelling_deck.getCurrentCard() ).get(0);
+            String answer_word = deck.getCurrentCard().getCardText();
 
             System.out.println( typed_word );
             // If the typed word is smaller, cut the answer word to size
@@ -693,6 +793,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     class ClearUserInputListener implements View.OnClickListener {
         public void onClick(View v) {
             clearUserInput();
+            displayUserInput();
         }
     }
     class ShowUserSpellingHint implements View.OnClickListener {
@@ -722,28 +823,37 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         }
 
+        public WordWithIndexes getWordsWithIndexes() {
+            return word_with_indexes;
+        }
+
         @Override
         public void onClick(View widget) {
             if( is_answer_shown == false ) {
                 // When in sentence mode
                 // They have not heard the audio and must have clicked
                 // the word for a hint, so set the card to failed.
-                reading_spelling_deck.nextQuestion(false, true);
+                deck.nextQuestion(false, true);
                 AnimationCrossesFallingShort();
             }
             // Play Audio File.
             MyMediaPlayer audio = new MyMediaPlayer();
             try {
-                audio.setDataSource( this.audio_file_path );
-                audio.prepare();
-                audio.start();
                 // Highlight the word we have clicked on so the user has visual feedback.
                 if( read_along_timing != null ) {
+                    audio.setDataSource( this.audio_file_path );
+                    audio.prepare();
                     ArrayList<ReadAlongTiming> t = new ArrayList<ReadAlongTiming>();
                     t.add( new ReadAlongTiming( 0, audio.getDuration(), this.word_with_indexes) );
 
-                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( audio, t );
+                    audio.start();
+
+                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( audio, this.word, t );
                     thread_highlight_word.start();
+                } else {
+                    audio.setDataSource( this.audio_file_path );
+                    audio.prepare();
+                    audio.start();
                 }
 
             } catch (Exception e) {
@@ -771,9 +881,17 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         public boolean keep_going = true;
         ArrayList<ReadAlongTiming> read_along_timings;
 
-        ThreadHighlightWord( MyMediaPlayer audio, ArrayList<ReadAlongTiming> read_along_timings) {
+        ThreadHighlightWord( MyMediaPlayer audio, String card_text, ArrayList<ReadAlongTiming> read_along_timings ) {
             this.audio = audio;
             this.read_along_timings = read_along_timings;
+
+            if( read_along_timings == null ) {
+                long start_pos_in_millis = 0;
+                long end_pos_in_millis = audio.getDuration();
+                WordWithIndexes words_with_indexes = new WordWithIndexes(card_text, 0, card_text.length() );
+
+                new ReadAlongTiming( start_pos_in_millis,end_pos_in_millis, words_with_indexes );
+            }
         }
         public void run() {
             this.keep_going = true;
@@ -790,12 +908,39 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 if( current_position >= audio.getDuration() + 1 ) {
                     this.keep_going = false;
                 }
-                for (int i = 0; i < this.read_along_timings.size(); i++) {
-                    this.read_along_timings.get(i).colourLabel( current_position );
+                if( read_along_timings != null ) {
+                    for (int i = 0; i < this.read_along_timings.size(); i++) {
+                        this.read_along_timings.get(i).colourLabel(current_position);
+                    }
                 }
             }
+
+            // Enable the answer buttons
+            // Used a handler, because we can't access the UI elements from another thread, so this is
+            // a thread safe way to call the UI.
+            Message message = new Message();
+            message.what = MyUiUpdateHandler.MESSAGE_ENABLE_BUTTONS;
+            // Send message to main thread Handler.
+            my_ui_handler.sendMessage(message);
         }
     }
+
+
+    /**
+     * Thread safe way to update the UI.
+     */
+    class MyUiUpdateHandler extends Handler {
+        public static final int MESSAGE_ENABLE_BUTTONS = 1;
+        @Override
+        public void handleMessage(Message msg) {
+            // Means the message is sent from child thread.
+            if(msg.what == MESSAGE_ENABLE_BUTTONS)
+            {
+                // Update ui in using the main thread.
+                EnableButtons();
+            }
+        }
+    };
 
     /**
      * This button can highlight words in a sentence once the audio has started playing to simulate a "read-along with me" feature.
@@ -803,25 +948,32 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     class MyAudioButtonWithWordHighlighting extends MyAudioButton {
         public boolean keep_going = true;
         public boolean is_highlighting_enabled = false;
+        private String card_text;
 
-        public MyAudioButtonWithWordHighlighting( Context context, String audio_file, boolean autostart, boolean is_highlighting_enabled ) {
+        public MyAudioButtonWithWordHighlighting( Context context, String card_text, String audio_file, boolean autostart, boolean is_highlighting_enabled ) {
             super(context, audio_file, autostart);
             this.is_highlighting_enabled = is_highlighting_enabled;
+            this.card_text = card_text;
             // Highlight our words as the audio plays.
             if( autostart && is_highlighting_enabled ) {
-                ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), read_along_timings );
+                DisableButtons();
+                ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), this.card_text, read_along_timings );
+                audio.start();
                 thread_highlight_word.start();
             }
         }
 
         @Override
         public void onClick(View v) {
+            DisableButtons();
             //play media file.
             if( ! audio.isPlaying() ) {
-                audio.start();
                 if( this.is_highlighting_enabled ) {
-                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), read_along_timings );
+                    ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), this.card_text, read_along_timings );
+                    audio.start();
                     thread_highlight_word.start();
+                } else {
+                    audio.start();
                 }
             }
         }
@@ -890,5 +1042,21 @@ class Timings {
     Timings( long start_in_millis, long end_in_millis ) {
         this.start_in_millis = start_in_millis;
         this.end_in_millis = end_in_millis;
+    }
+}
+
+class ReadingLessonDBHandler extends SQLiteOpenHelper {
+    public ReadingLessonDBHandler( Context context, String db_name, int db_version ) {
+        super( context, db_name, null, db_version );
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // Do nothing because we download the database and use that.
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Do nothing as the database has stayed the same so far.
     }
 }
