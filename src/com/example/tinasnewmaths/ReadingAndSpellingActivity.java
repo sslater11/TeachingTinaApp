@@ -22,7 +22,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,19 +43,12 @@ import android.widget.TextView;
 
 import com.plattysoft.leonids.ParticleSystem;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-import libteachingtinadbmanager.Card;
-import libteachingtinadbmanager.CardDBManager;
 import libteachingtinadbmanager.CardDBTagManager;
-import libteachingtinadbmanager.DeckSettings;
 import libteachingtinadbmanager.ReadingLessonCard;
 import libteachingtinadbmanager.ReadingLessonDeck;
 import libteachingtinadbmanager.SentenceAnalyzer;
@@ -68,6 +60,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     ArrayList<Button> spelling_buttons;
     TextView txtTyped;
     TextView txtReadAlong;
+    TextView txt_num_of_cards_to_reviews;
+    TextView txt_num_of_new_cards;
     Button clear_user_input;
     Button btn_spelling_hint;
     boolean is_spelling_hint_enabled = false;
@@ -75,19 +69,23 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
     ReadingLessonDeck deck;
-    private float USER_TEXT_FONT_SIZE = 72f;
-    private float LETTER_BUTTONS_FONT_SIZE = 32f;
-    private Typeface FONT_TYPEFACE = Typeface.SANS_SERIF;
+    ArrayList<ReadingLessonCard> all_cards;
+    int num_of_reviews_today;
+    int num_of_new_cards;
+    private final float USER_TEXT_FONT_SIZE = 72f;
+    private final float LETTER_BUTTONS_FONT_SIZE = 32f;
+    private final Typeface FONT_TYPEFACE = Typeface.SANS_SERIF;
     private TableLayout audio_buttons_table_layout;
-    private boolean is_audio_playing = false;
     private SpannableStringBuilder spannable_string;
     private ArrayList<ReadAlongTiming> read_along_timings;
 
     private SQLiteDatabase reading_lesson_database;
-    private int db_version = 1;
+    private final int db_version = 1;
     String sqlite_db_file;
 
     private MyUiUpdateHandler my_ui_handler; // Helps us update the UI from another thread.
+
+    int MAX_DECK_SIZE = 5;
 
     // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
     @SuppressLint("MissingSuperCall")
@@ -98,12 +96,19 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         db_config_file  = new File( getIntent().getStringExtra("deck_settings_file_path") );
         db_media_folder = new File( str_db_file.replace(".txt", "") );
 
+        setContentView(R.layout.activity_reading_and_spelling);
+
         my_ui_handler = new MyUiUpdateHandler();
 
         sqlite_db_file = db_file.getParent() + File.separator + "ReadingLessons.db";
         loadCardsFromSQLiteDatabase();
 
-        setContentView(R.layout.activity_reading_and_spelling);
+        // Study cards to review first
+        deck = new ReadingLessonDeck( getCurrentReviewCards( all_cards ) );
+        // If there were either no cards to review, or there's not many, learn some new ones.
+        if( deck.size() <= 3 ) {
+            deck = new ReadingLessonDeck( getCurrentNewCards(all_cards) );
+        }
 
         // Create the spelling hint button.
         this.btn_spelling_hint = new Button(this);
@@ -127,6 +132,14 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         super.onCreate( savedInstanceState, R.layout.activity_reading_and_spelling);
 
         this.bt_show_answer.setText( "Check Answer" );
+        // Count how many cards there are to review.
+        this.txt_num_of_cards_to_reviews = (TextView) findViewById( R.id.txt_num_of_cards_to_review );
+        updateCardsLeftToReview();
+    }
+
+    public void updateCardsLeftToReview() {
+        this.txt_num_of_cards_to_reviews.setText( "Cards to review today: " + deck.countCardsLeftToStudy() );
+
     }
 
     public void loadCardsFromSQLiteDatabase() {
@@ -134,7 +147,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Open the SQLite Database
         ReadingLessonDBHandler db_helper = new ReadingLessonDBHandler( this, sqlite_db_file, db_version );
         reading_lesson_database = db_helper.getReadableDatabase();
-        Cursor cursor = reading_lesson_database.rawQuery("SELECT * FROM " + SQLiteReadingLessonHandler.TABLE_NAME + ";", new String[]{} );
+        Cursor cursor = reading_lesson_database.rawQuery("SELECT * FROM " + SQLiteReadingLessonHandler.TABLE_NAME + " ORDER BY " + SQLiteReadingLessonHandler.CARD_ID + " ASC;", new String[]{} );
 
         if( cursor.getCount() > 0 ) {
             // We have cards to learn.
@@ -187,7 +200,135 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         reading_lesson_database.close();
 
-        deck = new ReadingLessonDeck( reading_lesson_cards );
+        all_cards = reading_lesson_cards;
+    }
+
+    /**
+     * Will look through the list and get the next new cards to learn.
+     *
+     * WARNING: Must take a list that is ordered by the CARD_ID in ascending order.
+     * @param deck
+     * @return
+     */
+    public ArrayList<ReadingLessonCard> getCurrentNewCards( ArrayList<ReadingLessonCard> deck) {
+
+        // Scan through the deck.
+        ArrayList<ReadingLessonCard> results_deck = new ArrayList<ReadingLessonCard>();
+        for( int i = 0; i < deck.size(); i++ ) {
+
+            // Exit this loop if we've added too many cards already.
+            if( results_deck.size() >= MAX_DECK_SIZE ) {
+                break;
+            }
+
+            // Check that we've not already added this card to the list.
+            if( ! isCardIDInList( deck.get(i).getCardID(), results_deck ) ) {
+                // New cards have a timestamp of -1.
+                if ( deck.get(i).getDateInMillis() == -1 ) {
+                    results_deck.add( deck.get(i) );
+
+                    // For every addition of a card, check if it's got a linked card, and see if we have added the linked card to the deck already.
+                    if ( deck.get(i).isASound() ) {
+                        // If the linked card isn't in the results_deck already, add it.
+                        ReadingLessonCard linked_card = getCardFromListByCardID( deck.get(i).getIdOfLinkedCard(), deck );
+                        if ( linked_card != null ) {
+                            results_deck.add( linked_card );
+                        }
+                    }
+                    else if( deck.get(i).isAWord() ) {
+                        // If a card is a new word, add both reading and spelling cards to be learnt together.
+
+                        // If the linked card isn't in the results_deck already, add it.
+                        ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
+                        if (linked_card != null) {
+                            results_deck.add( linked_card );
+                        }
+                    }
+                }
+            }
+        }
+
+        return results_deck;
+    }
+
+    public ArrayList<ReadingLessonCard> getCurrentReviewCards( ArrayList<ReadingLessonCard> deck ) {
+        // Scan through the deck.
+        ArrayList<ReadingLessonCard> results_deck = new ArrayList<ReadingLessonCard>();
+        for( int i = 0; i < deck.size(); i++ ) {
+
+            // Exit this loop if we've added too many cards already.
+            if( results_deck.size() >= MAX_DECK_SIZE ) {
+                break;
+            }
+
+            // New cards have a timestamp of -1.
+            // So skip adding those.
+            if ( deck.get(i).getDateInMillis() != -1 ) {
+                // Check that we've not already added this card to the list.
+                if ( !isCardIDInList(deck.get(i).getCardID(), results_deck) ) {
+                    if ( deck.get(i).isReviewNeeded() ) {
+                        results_deck.add( deck.get(i) );
+
+                        // For every addition of a card, check if it's got a linked card, and see if we have added the linked card to the deck already.
+                        if ( deck.get(i).isASound() ) {
+                            // If the linked card isn't in the results_deck already, add it.
+                            ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
+                            if ( linked_card != null ) {
+                                results_deck.add(linked_card);
+                            }
+                        } else if ( deck.get(i).isAWord() ) {
+                            // If a card is a newly learnt word, add both reading and spelling cards to be learnt together.
+                            // If the card is a review, don't add it, just review reading and spelling separately.
+                            // We'll call it a review if the box_num is greater than 2.
+                            // We'll call it a newly learnt word if the box_num is less than 2.
+
+                            if ( deck.get(i).getBoxNum() < 2 ) {
+                                // If the linked card isn't in the results_deck already, add it.
+                                ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
+                                if (linked_card != null) {
+                                    results_deck.add(linked_card);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return results_deck;
+    }
+
+    /**
+     * Searches through the list for a card with the matching card_id, and returns it.
+     * @param card_id
+     * @param deck
+     * @return returns null if no card is found in the list. Returns a card if it matches the card_id passed.
+     */
+    public ReadingLessonCard getCardFromListByCardID( int card_id, ArrayList<ReadingLessonCard> deck ) {
+        // TODO:
+        // Turn this into a binary search to make it easier. Make sure list is ordered by card_id,
+        // it may not be as the code to add cards could add them out of order.
+        // This is why I'm using this inefficient loop, it's just easier for now.
+        for( int i = 0; i < deck.size(); i++ ) {
+            if( deck.get(i).getCardID() == card_id ) {
+                return deck.get(i);
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isCardIDInList( int card_id, ArrayList<ReadingLessonCard> deck ) {
+        /**
+         * TODO: Make this a binary search, because if not, our program will be really slow as this is called often
+         */
+        for( int i = 0; i < deck.size(); i++ ) {
+            if( deck.get(i).getCardID() == card_id ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void saveCardsToSQLiteDatabase( ArrayList<ReadingLessonCard> reading_lesson_cards ) {
@@ -637,6 +778,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         clearUserInput();
         deck.nextQuestion(true, false);
         NextQuestion();
+        updateCardsLeftToReview();
         AnimationExplodingTicks();
     }
 
@@ -648,15 +790,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         clearUserInput();
         deck.nextQuestion(false, false);
         NextQuestion();
+        updateCardsLeftToReview();
         AnimationCrossesFalling();
     }
 
-    //public void NextQuestion() {
-    //    super.NextQuestion();
-
-    //    setTypedString("");
-    //    displayUserInput();
-    //}
     public boolean isLetterInButtonArray( ArrayList<Button> letter_buttons, char letter) {
         for( Button b : letter_buttons ) {
             if (b.getText().toString().compareToIgnoreCase("" + letter) == 0) {
@@ -940,14 +1077,13 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 EnableButtons();
             }
         }
-    };
+    }
 
     /**
      * This button can highlight words in a sentence once the audio has started playing to simulate a "read-along with me" feature.
      */
     class MyAudioButtonWithWordHighlighting extends MyAudioButton {
-        public boolean keep_going = true;
-        public boolean is_highlighting_enabled = false;
+        public boolean is_highlighting_enabled;
         private String card_text;
 
         public MyAudioButtonWithWordHighlighting( Context context, String card_text, String audio_file, boolean autostart, boolean is_highlighting_enabled ) {
@@ -981,8 +1117,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
     class ReadAlongTiming {
         private boolean is_colour_red = false;
-        private long start_position_in_millis = -1;
-        private long end_position_in_millis = -1;
+        private long start_position_in_millis;
+        private long end_position_in_millis;
         private WordWithIndexes word_with_indexes;
 
         ReadAlongTiming( long start_position_in_millis, long end_position_in_millis, WordWithIndexes word_with_indexes ) {

@@ -40,17 +40,32 @@
 
 
     <!-- Body goes here -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txt_num_of_cards_to_review"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cards to review:" />
+
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/flashcard_group_scroll_view"
-        android:layout_weight="1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="611dp"
+        android:layout_weight="1">
+
         <LinearLayout
             android:id="@+id/flashcard_group_scroll_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <!-- The question and answer are added here -->
 

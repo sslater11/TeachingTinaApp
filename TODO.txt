@@ -1,154 +1,21 @@
-e01/02/2022
-As of today, my codebase is still fragmented, even though I was supposed to condense it all into just one project.
-
-A quick refresher for myself:
-I moved the database management to LibTeachingTinaDatabaseManagerv2 in the eclipse folder.
-I've decided to just use a symlink to the library folder to include it in adroid as that's easier to manage.
-I'm working on the android app instead of the PC version as the app seems a lot better and polished.
-
 My steps to get this up and running so far.
 ------------------------------------------
-[done: 01/02/2022] Mark each todo-list item off in order with the [done: date] tag, and this app will finally get made!
+make the isCardIDInList and getCardFromListByCardID work by using a binary search.
+Might need to make sure that t the list is in order.
 
-[done: 01/02/2022] Load the app, see how it works
-
-[done: 01/02/2022] Look at the current database format, and see how it's different from the old one.
-
-[done: 01/02/2022] Backup the old database management files in a directory called old_database_management
-
-[done: 01/02/2022] Copy the LibTeachingTinaDatabaseManagerv2 files into this project
-
-[done: 01/02/2022] Fix any issues that occur in the database management files
-[done: 01/02/2022]	 Fix all the errors java threw us over using the library code.
-
-[done: 01/02/2022]	 Almost there - Almost got the library 100% working for TeachingTinaPC, Tinas's Reading Lesson Creator, and TeachingTinaAndroid.
-[done: 01/02/2022]	 Get the app to find database files, because now it's saying it can't find any, when before it worked perfectly.
-[done: 01/02/2022]	 	CardDBManager's scanDirectory() method just needed updating, luckily I already had the code there for it, so it was easy!
-
-[done: 04/02/2022] Find all of Tina's and my flashcard databases and fix them so that they work with the new database manager.
-[done: 04/02/2022] 	We probably just have to remove the reaction speed and target reaction speed columns as I think I took those out of the new database. I never used them, so that might be all we have to do.
-[done: 04/02/2022] 	Run the program and get these things working
-[done: 04/02/2022] 		Tina's maths deck
-[done: 04/02/2022] 		My sheet music flashcards
-
-
-[done: 11/02/22] currently need to make the button listener work for clicking to enter a single letter to act as a shitty keyboard.
-[done: 11/02/22] The Listener doesn't work on the letters of the current word.
-
-
-[done: 11/02/22] Give the text spelling view a larger font
-[done: 11/02/22] Add a clear button too
-[done: 12/02/22] Highlight the background of each letter that's been spelt correctly.
-[done: 12/02/22] 	We need to make a Spannable object which lets us set the background colour of each letter individually
-[done: 12/02/22] 	Show the answer in red if they type the answer wrong.
-[done: 12/02/22] 	User's answer will be black text with light green background
-[done: 12/02/22] 	User's incorrectly entered letters will turn red.
-[done: 12/02/22] 	User's spelling hint letter colour should be a light grey.
-[done: 12/02/22] 		Add an if is_spelling_hint_enabled test to display the remaining letters in grey.
-[done: 12/02/22] 			Don't show any letters of the hint if the user has typed an incorrect letter.
-
-[done: 26/3/22] Made Tina's app read and display the flashcards for the spelling mode.
-
-[done] Attempt to include the leonids library to have a celebration effect with confetti flying everywhere.
-[done]	https://github.com/plattysoft/Leonids
-
-[done: 06/4/22] Make a table for the buttons to go in so they take up just one line.
-[done: 06/4/22] Display the images and audio on the spelling mode a bit nicer. Currently they're just added using super.AddContent().
-
-[done: 07/4/22] Test adding everything to a linear layout instead of scroll_layout, because we want everything to fit on one page, hoping that the images will scale and not push anything off the screen.
-	[done: 07/4/22] This doesn't work, so keeping the scrolling layout. With linear layout, everything gets pushed off the screen and we can't access it. At least with the scroll layout we can access all the components if they're pushed off the screen.
-
-[done: 08/4/22] Put the spelling buttons into fewer rows as it makes sense to use the whole width of the screen instead of taking up the height which the images require.`
-
-[done: 09/4/22] Reading mode:
-	[done: 09/4/22] Work on the displaying the flashcard in the reading mode.
-
-
-
-[done: 13/4/22] We can now switch between reading, spelling and sentence mode flashcards.
-
-[done: 15/4/22 ]Sentence mode:
-	[done: 11/4/22] make a new program called TeachingTinaReadAlongTimingCreator. It will load a sentennce and audio from a flashcard and when play is pressed, we can click on each word and it will store the time in milliseconds for when it should highlight the word.
-
-	[done: 12/4/22] Make the feature "tap this word in the sentence to hear it".
-
-	[done: 12/4/22] # bug fix !!!
-	[done: 12/4/22]	 The tap on a word feature works, but I can't make a git commit until it's working properly.
-	[done: 12/4/22]	 The card is a sentence card, but it's under the 'words' group in the db file.
-	[done: 12/4/22]	 We need the card to go under the 'sentence' group and for the card to be loaded properly.
-	[done: 12/4/22]	 I think the audio or image didn't work when we used he proper group.
-
-	[done: 15/4/22] Make a Read a Long feature, so it will highlight words as they are spoken on the audio.
-	[done: 15/4/22]	 As seen above, I have made the PC proram TeachingTinaReadAlongTimingCreator which is still really basic, but allows us to create the timings.
-	[done: 15/4/22]	 I still need to make that program export the timings, and to read in new audio and sentences.
-	[done: 15/4/22]	 I've left that step out, because I want to work on getting android to highlight words as well, then I can work on the bridge of saving and reading the timings.
-
-	[done: 16/4/22]	 Highlight the word she taps on to hear the audio. Make the word turn red.
+need to add to the main screen a card counter saying how many flashcards will be reviewed today.
+Will display all the reviews and the new cards together.
 
 
 
 
 
 
-Make the reading mode word highlight red and play the card's audio when the user taps on the word.
-
-Play the audio "Spell the word..." for every time the spelling mode shows a card. Then auto play word's audio e.g. "cat", so it will say "Spell the word..." "cat"
-
-
-Make a database media checker:
-	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
-
-	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
-		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
-
-	Allow font changes and capitalise and lower case the word/sentence, because if a card shows as 'll', is it 2 L or 2 I letters or even LI or IL?
-
-	Check if the file in the tag is missing.
-
-	Update the Incomplete cards list once a card is completed
-		I'm thinking keep it in the incomplete list and highlight the background colour of each line to green for each completed card in the incomplete card list.
-		Or do I move it straight to the completed cards list?
-
-		I think move it to the completed cards list once we click the save button, and keep it in the incomplete list whilst it's not been saved.
-
-	I think the incomplete list should display old cards first.
-	The completed cards list should show the newest cards at the top, so in reverse order.
-
-Create the tools to make flashcards:
-	Hannah will probably require a gui to make creating flashcards easier. It could also avoid some bugs if she edit's the database files incorrectly.
-	After running the reading lesson creator,
-	She will open the flashcard in the app and it will look for any missing media for flashcards.
-	It will display one flashcard at a time and she can drag and drop images and audio into it.
-	Move the code for the 'read along timings creator' into this program so she can do that easily.
-	Have a way to ignore certain sounds, and to remind her of those as she creates lessons?
-
-Then look through my project and remove all fluff, all extra versions, all waste and duplicate code.
-Then make the library a git project too.
-Also make the reading lesson creator text editor a git project.
-
-Make the reading lesson creator make 2 lines for a word. A #reading# and #spelling#
-Also make it put #reading# infront of the consonant vowel pairs and all those groups
-	I think we should have every word added to the database twice.
-		once for the reading
-		once for the spelling.
-		This makes sense as they're both separate flashcards.
-
-	-----\# This is the layout of the words.
-	     |	# sounds
-	     |	01/01/2018	1	00:00:00	0	#READING#	ca	<audio:"ca.mp3">
-	     |	01/01/2018	1	00:00:00	0	#READING#	ac	<audio:"ac.mp3">
-	     |	01/01/2018	1	00:00:00	0	#READING#	at	<audio:"at.mp3">
-	     |	01/01/2018	1	00:00:00	0	#READING#	ta	<audio:"ta.mp3">
-	     |	
-	     |	# words
-	     |	01/01/2018	1	00:00:00	0	#READING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
-	     |	01/01/2018	1	00:00:00	0	#SPELLING#	cat	<image:"cat.jpg">	<audio:"cat.mp3">
-	     |	
-	     |	# sentence
-	     |	01/01/2018	1	00:00:00	0	#SENTENCE	There was a cat	<audio:"Reading Lesson 0001 - Sentence.mp3">
-	----/
-
-Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
+To load reading cards
+Scan through the database
+Caclulate if a card needs to be reviewed
+add to reviews array list
+add new cards to learning array list
 
 Make the app actually load flashcards properly
 	// How the layout will be used.
@@ -159,10 +26,59 @@ Make the app actually load flashcards properly
 
 	Flashcards are loaded as if all the reading lessons and cards are of a single deck, so they're reviewed in the order that they need to be reviewed in, and not separated by file or group.
 
+----------------------
+The rules for loading reading lesson cards.
 
-Fix the fact that the maximum study session doesn't seem to be working.
-	I think the review date in the text file is what holds the amount of reviews a day.
-	I need to read my code to refresh myself on how that works.
+ca and ac should be intimately linked and reviewed together.
+
+words should probably be shown before a sentence?
+
+all cards should be loaded in the order they're added to the deck.
+
+reading and spelling cards
+	After going through the below, I think keep reading and spelling sererate, but when first introduced to a word, we should practice
+	reading and spelling, as it draws more focus to the word.
+	Further reviews can seperate reading and spelling.
+	If we had reading and spelling intimately linked, then we'd only ever know the review times between the spelling, as it's obvious that spelling is harder to get right more often than reading.
+
+
+
+	do we link them together
+	or is reading a different thing from spelling?
+
+	I think we should learn them seperately.
+	like, I can read mississipii, but fuck knows how to spell it.
+
+
+	* Pros for linking cards together
+		They'll have to read and spell both, resulting in more reviews.
+		If they forget how to spell a word, maybe they also can't read it?
+		They can practice both spelling and reading together, to really get the word into their head.
+
+	* Cons for not linking cards together
+		not practicing reading and writing together.
+
+
+	* Cons for linking cards together
+		Could force too many reviews, especially if she fails to spell a card, but has no problems reading it.
+		Leads to unknown data on whether she can read a card, as she's probably going to fail at spelling more often than reading.
+
+	* Pros for not linking cards together
+		Keeps reading and spelling study data seperate, so we can see how large the reading review intervals are.
+		Reading and spelling are 2 different things.
+-------------------------------------
+
+
+Make a database media checker:
+	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
+
+	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
+		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
+
+	Allow font changes and capitalise and lower case the word/sentence, because if a card shows as 'll', is it 2 L or 2 I letters or even LI or IL?
+
+Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
+
 
 
 Add a statistics tracker to tina's app.
@@ -171,28 +87,11 @@ Add a statistics tracker to tina's app.
 	Time per flashcard
 	Each day's total studied card count.
 
-	I could just add a line whenever she answers a flashcard, that way I can write the code to anaylize it at a later date.
-	Maybe:
-		I'm thinking I should update a stats file for each database.
-		And in each deck folder, have a stats folder to hold the stats fr each day.
-
-Rename the app TeachingTina
-move the code out from src/com/example/tinasnewmaths/ to just com/teachingtina/
-
-Update the DeckSettings so that I actually understand what all the settings do, and update the SettingsActivity so it can change all of the settings.
-Maybe change the deck settings over to use Java's Properties class.
-	Work on the deck settings gui so we can easily change every setting without needing to look at the file.
-	Maybe update how the settings file is read to using the Properties object if it doesn't use that right now.
-
-
 say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
+	Will need to splice several audio files together cat.wav c.wav a.wav t.wav cat.wav.
 
-Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images.
+Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images, so I can release them for the public.
 
-Upload app to github
-
-Record my voice for making lesson 1 of Tina's reading deck.
-Setup audio recording with Hannah so she can make more lessons.
 Find that list of letter pairs that I made years ago, where I went through the whole dictionary to find each different sound each letter pair can make.
 
 Add a daily card count on the main menu screen.
@@ -202,7 +101,41 @@ Add a daily card count on the main menu screen.
 
 Add a speaking alarm that says "Tina, do your reading practice". It should go off twice a day.
 
-Enhancement:
-	Make the CardDBManager extract data from a string, instead of a file, as it's currently reading from a file for every
-	group of letters, so consonant pairs, double vowels, words, etc. It's a new file read for all of those and it should really
-	just be working from a string stored in memory.
+
+
+
+
+
+
+
+
+
+Look at anki's review algorithm, and see if I can mimic a similar forgetting curve.
+	Chart out my app's forgetting curve.
+	It's currently multiplying the box number by 1.4, starting at 1, and the number is rounded to get the number of days for the last review.
+	1    * 1.4 = 1.4
+	1.4  * 1.4 = 1.96
+	1.96 * 1.4 = etc....
+	
+	Anki's review interval is 2.5 where mine is 1.4
+	
+	Anki's interval in days is
+	1 2
+	2 5
+	3 13
+	4 33
+	5 83
+	
+	Tina's app interval in days is
+	
+	Interval
+	1  1
+	2  1.4
+	3  2
+	4  3
+	5  4
+	6  6
+	7  8
+	8  11
+	9  15
+	10 21
