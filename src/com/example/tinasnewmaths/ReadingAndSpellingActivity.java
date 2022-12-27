@@ -78,14 +78,25 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     private TableLayout audio_buttons_table_layout;
     private SpannableStringBuilder spannable_string;
     private ArrayList<ReadAlongTiming> read_along_timings;
+    private long time_card_was_displayed_in_millis;
 
     private SQLiteDatabase reading_lesson_database;
+    private SQLiteDatabase reading_lesson_stats_database;
     private final int db_version = 1;
+    private final int stats_db_version = 1;
     String sqlite_db_file;
+    String sqlite_stats_db_file;
 
     private MyUiUpdateHandler my_ui_handler; // Helps us update the UI from another thread.
 
     int MAX_DECK_SIZE = 5;
+
+    @Override
+    protected void onPause() {
+        // Close the database, because I've set the super.onPause() method to actually kill the activity.
+        reading_lesson_stats_database.close();
+        super.onPause();
+    }
 
     // We do call super.onCreate(), we call another super method to pass the activity id so that the correct one is loaded.
     @SuppressLint("MissingSuperCall")
@@ -101,7 +112,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         my_ui_handler = new MyUiUpdateHandler();
 
         sqlite_db_file = db_file.getParent() + File.separator + "ReadingLessons.db";
+        sqlite_stats_db_file = db_file.getParent() + File.separator + "ReadingLessonStats.db";
         loadCardsFromSQLiteDatabase();
+        // Open  the statistics logging database
+        ReadingLessonStatisticsDBHandler stats_db_handler = new ReadingLessonStatisticsDBHandler( this, sqlite_stats_db_file, stats_db_version );
+        reading_lesson_stats_database = stats_db_handler.getWritableDatabase();
 
         // Study cards to review first
         deck = new ReadingLessonDeck( getCurrentReviewCards( all_cards ) );
@@ -137,9 +152,51 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         updateCardsLeftToReview();
     }
 
+    /**
+     * Will log the current card in the stats table.
+     * Will log the:
+     *     time/date,
+     *     time taken to answer,
+     *     the box_num,
+     *     card's id number,
+     *     were they incorrect/correct,
+     *     and if the spelling hint was used.
+     * @param is_answer_correct
+     */
+    public void logStats( boolean is_answer_correct ) {
+        int card_id = deck.getCurrentCard().getCardID();
+        float box_num = deck.getCurrentCard().getBoxNum();
+        long time_took_to_answer_in_millis = System.currentTimeMillis() - time_card_was_displayed_in_millis;
+
+        // Convert the boolean values to ints.
+        int int_is_answer_correct;
+        int int_was_spelling_hint_used;
+        if( is_answer_correct ) {
+            int_is_answer_correct = 1;
+        } else {
+            int_is_answer_correct = 0;
+        }
+
+        if( is_spelling_hint_enabled ) {
+            int_was_spelling_hint_used = 1;
+        } else {
+            int_was_spelling_hint_used = 0;
+        }
+
+        // Write to the database.
+        ContentValues sql_insert_values = new ContentValues();
+        sql_insert_values.putNull( ReadingLessonStatisticsDBHandler.STAT_ID ); // Make the primary key Null so that it will auto-increment.
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.DATE_IN_MILLIS, System.currentTimeMillis() );
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.CARD_ID, card_id );
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.BOX_NUM, box_num );
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.TIME_TO_ANSWER_IN_MILLIS, time_took_to_answer_in_millis );
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.IS_ANSWER_CORRECT, int_is_answer_correct );
+        sql_insert_values.put( ReadingLessonStatisticsDBHandler.WAS_SPELLING_HINT_USED, int_was_spelling_hint_used );
+
+        reading_lesson_stats_database.insert(ReadingLessonStatisticsDBHandler.TABLE_NAME, null, sql_insert_values );
+    }
     public void updateCardsLeftToReview() {
         this.txt_num_of_cards_to_reviews.setText( "Cards to review today: " + deck.countCardsLeftToStudy() );
-
     }
 
     public void loadCardsFromSQLiteDatabase() {
@@ -198,6 +255,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             System.out.println( "No cards found!" );
         }
 
+        cursor.close();
         reading_lesson_database.close();
 
         all_cards = reading_lesson_cards;
@@ -660,6 +718,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         if (deck.isLearnt() == false) {
             // It's not the last card, so continue.
             ResetQuestionField();
+            this.time_card_was_displayed_in_millis = System.currentTimeMillis();
+
             DisplayQuestion();
             EnableButtons();
         } else {
@@ -668,6 +728,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             System.out.println("You finished studying!.");
 
             saveCardsToSQLiteDatabase( deck.getLearntDeck() );
+
+            reading_lesson_stats_database.close();
 
             Intent openFinishedActivity = new Intent("com.example.tinasnewmaths.FINISHEDACTIVITY");
             ReadingAndSpellingActivity.this.startActivity(openFinishedActivity);
@@ -711,9 +773,11 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 if (is_spelling_hint_enabled) {
                     // Mark it as wrong, so they have to attempt it again without the spelling hint.
+                    logStats( false );
                     deck.nextQuestion(false, false);
                 } else {
                     // Since they didn't see a hint, mark it as correct.
+                    logStats( true );
                     deck.nextQuestion(true, false);
                 }
 
@@ -730,6 +794,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
                 // Mark the card as wrong and stay on the current card.
                 // Set the hint to true so they can see the word.
+                logStats( false );
                 deck.nextQuestion(false, true);
                 is_spelling_hint_enabled = true;
                 clearUserInput();
@@ -776,6 +841,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Stop the user from tapping the buttons whilst it's doing stuff.
         DisableButtons();
         clearUserInput();
+        logStats( true );
         deck.nextQuestion(true, false);
         NextQuestion();
         updateCardsLeftToReview();
@@ -788,6 +854,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         // Stop the user from tapping the buttons whilst it's doing stuff.
         DisableButtons();
         clearUserInput();
+        logStats( false );
         deck.nextQuestion(false, false);
         NextQuestion();
         updateCardsLeftToReview();
@@ -1189,6 +1256,42 @@ class ReadingLessonDBHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Do nothing because we download the database and use that.
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Do nothing as the database has stayed the same so far.
+    }
+}
+
+class ReadingLessonStatisticsDBHandler extends SQLiteOpenHelper {
+    public static String TABLE_NAME               = "reading_lesson_stats";
+    public static String STAT_ID                  = "stat_id";
+    public static String CARD_ID                  = "card_id";
+    public static String DATE_IN_MILLIS           = "date_in_millis";
+    public static String BOX_NUM                  = "box_num";
+    public static String TIME_TO_ANSWER_IN_MILLIS = "time_to_answer_in_millis";
+    public static String IS_ANSWER_CORRECT        = "is_answer_correct";
+    public static String WAS_SPELLING_HINT_USED   = "was_spelling_hint_used";
+
+    public ReadingLessonStatisticsDBHandler( Context context, String db_name, int db_version ) {
+        super( context, db_name, null, db_version );
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String sql_create_table =
+                "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +
+                        "( " +
+                        STAT_ID                  + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        DATE_IN_MILLIS           + " INTEGER, " +
+                        CARD_ID                  + " INTEGER, " +
+                        BOX_NUM                  + " INTEGER, " +
+                        TIME_TO_ANSWER_IN_MILLIS + " INTEGER, " +
+                        IS_ANSWER_CORRECT        + " INTEGER, " +
+                        WAS_SPELLING_HINT_USED   + " INTEGER" +
+                        " );";
+        db.execSQL( sql_create_table );
     }
 
     @Override

@@ -270,7 +270,7 @@ public class MenuActivity extends Activity {
 					bArr.get(i).setText( str );
 				} else {
 					Deck d;
-					if ( /***/ db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_FLASHCARDS ) {
+					if ( db_deck_settings.get(i).getDeckGuiType() == DeckSettings.DECK_GUI_TYPE_FLASHCARDS ) {
 						if( db_deck_settings.get(i).isGroupMode() ) {
 							d = new FlashcardGroupDeck ( tmp_deck, db_files.get(i), db_deck_settings.get(i) );
 						} else {
@@ -296,10 +296,6 @@ public class MenuActivity extends Activity {
 					bArr.get(i).setEnabled(true);
 				}
 			}
-			
-			
-			
-			System.out.println("no null");
 		} else {
 			// Display this message to the user in a text box.
 			File location = new File(Environment.getExternalStorageDirectory(), folder_name);

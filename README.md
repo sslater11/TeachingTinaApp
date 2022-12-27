@@ -4,7 +4,7 @@ This is an Android app I'm creating to teach my severely autistic sister how to 
 It's a flashcard app that can display text, images and audio.
 It also has a maths mode for practising addition.
 
-It uses both Deep Practice and Spaced Repetition to teach word sounds and words.
+It uses both Deep Practice and Spaced Repetition to teach the sounds that make up words, and the words themselves.
 
 The concept is simple.
 Break a word down into it's letter pairs and practice those, then put them together to make a word.

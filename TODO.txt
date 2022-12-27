@@ -3,70 +3,66 @@ My steps to get this up and running so far.
 make the isCardIDInList and getCardFromListByCardID work by using a binary search.
 Might need to make sure that t the list is in order.
 
-need to add to the main screen a card counter saying how many flashcards will be reviewed today.
-Will display all the reviews and the new cards together.
 
+Make for tina a deck to teach her the difference between a letter's name and it's sound.
+	The cards should ask "what is th name of this letter: s" and "what sound does this letter make: s"
 
-
-
-
-
-To load reading cards
-Scan through the database
-Caclulate if a card needs to be reviewed
-add to reviews array list
-add new cards to learning array list
-
-Make the app actually load flashcards properly
-	// How the layout will be used.
-	The program will look through the flashcard database line by line.
-	The flashcards are grouped in lessons, but we will not necessarily load just from one lesson. We load flashcards that are next needing a review.
-	The lesson grouping of the flashcards is more to handle the user's current reading level.
-	If they are up to a certain level, they will know all the words before, so we can easily see how large their vocabulary is.
-
-	Flashcards are loaded as if all the reading lessons and cards are of a single deck, so they're reviewed in the order that they need to be reviewed in, and not separated by file or group.
-
-----------------------
-The rules for loading reading lesson cards.
-
-ca and ac should be intimately linked and reviewed together.
-
-words should probably be shown before a sentence?
-
-all cards should be loaded in the order they're added to the deck.
-
-reading and spelling cards
-	After going through the below, I think keep reading and spelling sererate, but when first introduced to a word, we should practice
-	reading and spelling, as it draws more focus to the word.
-	Further reviews can seperate reading and spelling.
-	If we had reading and spelling intimately linked, then we'd only ever know the review times between the spelling, as it's obvious that spelling is harder to get right more often than reading.
-
-
-
-	do we link them together
-	or is reading a different thing from spelling?
-
-	I think we should learn them seperately.
-	like, I can read mississipii, but fuck knows how to spell it.
-
-
-	* Pros for linking cards together
-		They'll have to read and spell both, resulting in more reviews.
-		If they forget how to spell a word, maybe they also can't read it?
-		They can practice both spelling and reading together, to really get the word into their head.
-
-	* Cons for not linking cards together
-		not practicing reading and writing together.
-
-
-	* Cons for linking cards together
-		Could force too many reviews, especially if she fails to spell a card, but has no problems reading it.
-		Leads to unknown data on whether she can read a card, as she's probably going to fail at spelling more often than reading.
-
-	* Pros for not linking cards together
-		Keeps reading and spelling study data seperate, so we can see how large the reading review intervals are.
-		Reading and spelling are 2 different things.
--------------------------------------
+--done-- To load reading cards
+--done-- Scan through the database
+--done-- Caclulate if a card needs to be reviewed
+--done-- add to reviews array list
+--done-- add new cards to learning array list
+--done-- 
+--done-- Make the app actually load flashcards properly
+--done-- 	// How the layout will be used.
+--done-- 	The program will look through the flashcard database line by line.
+--done-- 	The flashcards are grouped in lessons, but we will not necessarily load just from one lesson. We load flashcards that are next needing a review.
+--done-- 	The lesson grouping of the flashcards is more to handle the user's current reading level.
+--done-- 	If they are up to a certain level, they will know all the words before, so we can easily see how large their vocabulary is.
+--done-- 
+--done-- 	Flashcards are loaded as if all the reading lessons and cards are of a single deck, so they're reviewed in the order that they need to be reviewed in, and not separated by file or group.
+--done-- 
+--done-- ----------------------
+--done-- The rules for loading reading lesson cards.
+--done-- 
+--done-- ca and ac should be intimately linked and reviewed together.
+--done-- 
+--done-- words should probably be shown before a sentence?
+--done-- 
+--done-- all cards should be loaded in the order they're added to the deck.
+--done-- 
+--done-- reading and spelling cards
+--done-- 	After going through the below, I think keep reading and spelling sererate, but when first introduced to a word, we should practice
+--done-- 	reading and spelling, as it draws more focus to the word.
+--done-- 	Further reviews can seperate reading and spelling.
+--done-- 	If we had reading and spelling intimately linked, then we'd only ever know the review times between the spelling, as it's obvious that spelling is harder to get right more often than reading.
+--done-- 
+--done-- 
+--done-- 
+--done-- 	do we link them together
+--done-- 	or is reading a different thing from spelling?
+--done-- 
+--done-- 	I think we should learn them seperately.
+--done-- 	like, I can read mississipii, but fuck knows how to spell it.
+--done-- 
+--done-- 
+--done-- 	* Pros for linking cards together
+--done-- 		They'll have to read and spell both, resulting in more reviews.
+--done-- 		If they forget how to spell a word, maybe they also can't read it?
+--done-- 		They can practice both spelling and reading together, to really get the word into their head.
+--done-- 
+--done-- 	* Cons for not linking cards together
+--done-- 		not practicing reading and writing together.
+--done-- 
+--done-- 
+--done-- 	* Cons for linking cards together
+--done-- 		Could force too many reviews, especially if she fails to spell a card, but has no problems reading it.
+--done-- 		Leads to unknown data on whether she can read a card, as she's probably going to fail at spelling more often than reading.
+--done-- 
+--done-- 	* Pros for not linking cards together
+--done-- 		Keeps reading and spelling study data seperate, so we can see how large the reading review intervals are.
+--done-- 		Reading and spelling are 2 different things.
+--done-- -------------------------------------
 
 
 Make a database media checker:
@@ -81,14 +77,33 @@ Make sure that when learning the consonant vowel pairs, the two flashcards are s
 
 
 
-Add a statistics tracker to tina's app.
-	Log how much time she spends in the app a day
-	Time per deck
-	Time per flashcard
-	Each day's total studied card count.
+- done - Add a statistics tracker to tina's app.
+- done - 	the database coumns should be
+- done - 		primary key
+- done - 		date in millis
+- done - 		card_id( id of the card studied )
+- done - 		the card's boxnum before answering
+- done - 		time it took to answer
+- done - 		did she get it right/wrong
+- done - 		did she need the spelling hint?
+
+
+I think we should add a sound teaching mode. E.g. cat will say "cat. c. a. t. cat. ca. at. cat. ca. at. cat." and highlight each letter as it's being said.
+This will mean a lot more work for every sound.
+
+Record videos for pronouncing each sound that is tricky, and explaining how to teach someone this sound. E.g. 'TH' makes the same saound as an 'F', but it is not pronounced the same. TH is said using the tip of the tongue touching teeth. F is said by your top teeth touching the bottom lip. TH also has a second sound which is pronounced as thuh as in "thuh man was sitting down". We add a vibrating V sound to the TH.
+	So the video will show:
+		How to pronounce the sound
+		All the different sounds the letter pairs can have
+		How to say the different sounds too.
+
 
 say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
 	Will need to splice several audio files together cat.wav c.wav a.wav t.wav cat.wav.
+Also make a say it out loud bit for sounds
+	Say: "H E makes the sound :HEH
+	h.wav + e.wav + makes_the_sound.wav + he.wav
+	also highlight the letters as it's spoken.
 
 Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images, so I can release them for the public.
 
