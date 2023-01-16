@@ -211,7 +211,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
             cursor.moveToFirst();
             while( ! cursor.isAfterLast() ) {
                 int card_id                    = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.CARD_ID) );
-                long date_in_millis            = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.DATE_IN_MILLIS) );
+                long date_in_millis            = cursor.getLong(   cursor.getColumnIndex(SQLiteReadingLessonHandler.DATE_IN_MILLIS) );
                 float box_num                  = cursor.getFloat(  cursor.getColumnIndex(SQLiteReadingLessonHandler.BOX_NUM) );
                 int reading_lesson_level       = cursor.getInt(    cursor.getColumnIndex(SQLiteReadingLessonHandler.READING_LESSON_LEVEL) );
                 String sound_type              = cursor.getString( cursor.getColumnIndex(SQLiteReadingLessonHandler.SOUND_TYPE) );
@@ -321,7 +321,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
             // New cards have a timestamp of -1.
             // So skip adding those.
-            if ( deck.get(i).getDateInMillis() != -1 ) {
+            if ( (deck.get(i).getDateInMillis() != -1) && (deck.get(i).isReviewNeeded()) ) {
                 // Check that we've not already added this card to the list.
                 if ( !isCardIDInList(deck.get(i).getCardID(), results_deck) ) {
                     if ( deck.get(i).isReviewNeeded() ) {
