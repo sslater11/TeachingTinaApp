@@ -488,9 +488,16 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         }
         else if( deck.getCurrentCard().isReadingMode() ) {
             // Display just the word on the screen.
-            String word = deck.getCurrentCard().getCardText();
-            this.txtTyped.setText( word );
-            scroll_layout.addView( this.txtTyped );
+            String text = deck.getCurrentCard().getCardText();
+            spannable_string = new SpannableStringBuilder();
+            spannable_string.append( text );
+
+            txtReadAlong = new TextView(this);
+            txtReadAlong.setText( spannable_string , TextView.BufferType.SPANNABLE);
+            txtReadAlong.setTypeface(FONT_TYPEFACE);
+            txtReadAlong.setTextSize(USER_TEXT_FONT_SIZE);
+            txtReadAlong.setGravity( Gravity.CENTER_HORIZONTAL);
+            scroll_layout.addView(txtReadAlong);
         }
         else if( deck.getCurrentCard().isSpellingMode() ) {
             // Spelling mode.
@@ -654,12 +661,23 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         ArrayList<String> audio_list = deck.getCurrentCard().getCardAudioAsArrayList();
 
         String card_text = deck.getCurrentCard().getCardText();
-        if( deck.getCurrentCard().isASentence() ) {
+        if( deck.getCurrentCard().isASound() ) {
+            boolean is_highlighting_enabled = true;
+
+            String audio_filepath = CardDBTagManager.getAudioFilename( audio_list.get(0) );
+            audio_filepath = db_media_folder + File.separator + audio_filepath;
+
+            ThreadHighlightLetters highlight_letters = new ThreadHighlightLetters( audio_filepath, deck.getCurrentCard().getCardText() );
+            DisableButtons();
+            highlight_letters.start();
+            audioArr.add(new MyAudioButtonWithWordHighlighting(this, card_text, audio_filepath, false, is_highlighting_enabled));
+        }
+        else if( deck.getCurrentCard().isASentence() ) {
             boolean is_highlighting_enabled = true;
 
             // Make an audio button and add the file's path.
             String audio_filepath = CardDBTagManager.getAudioFilename(audio_list.get(0));
-            audio_filepath = db_media_folder + "/" + audio_filepath;
+            audio_filepath = db_media_folder + File.separator + audio_filepath;
 
             audioArr.add(new MyAudioButtonWithWordHighlighting(this, card_text, audio_filepath, true, is_highlighting_enabled));
         }
@@ -1077,6 +1095,101 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 
     /**
+     * THIS IS COMPLETELY different than ThreadHighlightWord
+     *
+     * Colours in every letter in a sound/word, and plays the audio for each letter, followed by the audio of the sound/word.
+     * The highlighted letter will be the colour red.
+     *
+     */
+    class ThreadHighlightLetters extends Thread {
+        MyMediaPlayer audio;
+        String text;
+        String audio_file;
+
+        ThreadHighlightLetters( String audio_file, String text) {
+            this.audio_file = audio_file;
+            this.text = text;
+        }
+
+        public void run() {
+            spannable_string = new SpannableStringBuilder();
+            spannable_string.append(text);
+            // Highlight each letter and play the audio for each letter as well.
+            text = text.toLowerCase();
+            for( int i = 0; i < text.length(); i++ ) {
+                char letter = text.charAt(i);
+                if( (letter >= 'a') && (letter <= 'z') ) {
+                    // Highlight the letter.
+                    spannable_string.setSpan( new ForegroundColorSpan(Color.BLACK), 0, text.length(), 0);
+                    spannable_string.setSpan( new ForegroundColorSpan(Color.RED), i, i+1, 0);
+                    // We can't touch the TextView from this thread, so use this method to run it on the Ui's thread.
+                    runOnUiThread( new SetReadAlongColour( spannable_string ) );
+
+                    // Play the audio for the letter.
+                    String audio_file_path = db_media_folder + File.separator + "letters" + File.separator + letter + ".wav";
+                    play_audio( audio_file_path );
+                }
+            }
+
+            // Make the text black.
+            spannable_string.setSpan( new ForegroundColorSpan(Color.BLACK), 0, text.length(), 0);
+            runOnUiThread( new SetReadAlongColour( spannable_string ) );
+
+            // Pause for half a second before playing the audio file for the sound/word.
+            long pause_length = System.currentTimeMillis() + 500;
+            while( System.currentTimeMillis() < pause_length ) {
+                // Do nothing.
+            }
+
+            // Make the text red.
+            spannable_string.setSpan( new ForegroundColorSpan(Color.RED), 0, text.length(), 0);
+            runOnUiThread( new SetReadAlongColour( spannable_string ) );
+
+            // Play the audio file sound/word.
+            play_audio( audio_file );
+
+            // Make the text black.
+            spannable_string.setSpan( new ForegroundColorSpan(Color.BLACK), 0, text.length(), 0);
+            runOnUiThread( new SetReadAlongColour( spannable_string ) );
+
+
+            // Enable the answer buttons
+            // Used a handler, because we can't access the UI elements from another thread, so this is
+            // a thread safe way to call the UI.
+            Message message = new Message();
+            message.what = MyUiUpdateHandler.MESSAGE_ENABLE_BUTTONS;
+            // Send message to main thread Handler.
+            my_ui_handler.sendMessage(message);
+        }
+
+        void play_audio( String audio_file_path ) {
+            audio = new MyMediaPlayer();
+            try {
+                audio.setDataSource( audio_file_path );
+                audio.prepare();
+                audio.start();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            boolean keep_going = true;
+            while( keep_going ) {
+                if( audio.getDuration() == -1 ) {
+                    // Do nothing, although this should never happen, keep it here for debugging, just in case.
+                    System.out.println("Audio may have not been initialized. Currently in ThreadHighlightWord");
+                }
+
+                long current_position = System.currentTimeMillis() - audio.getStartTimeInMillis();
+
+                if( current_position >= audio.getDuration() ) {
+                    keep_going = false;
+                }
+            }
+        }
+    }
+
+    /**
      * Colour every word in either red or black, depending on the timings we give it.
      * Used for highlight words in a sentence once the audio has started playing to simulate a read-along with me feature.
      */
@@ -1169,7 +1282,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         @Override
         public void onClick(View v) {
             DisableButtons();
-            //play media file.
+            // play media file.
             if( ! audio.isPlaying() ) {
                 if( this.is_highlighting_enabled ) {
                     ThreadHighlightWord thread_highlight_word = new ThreadHighlightWord( this.getMediaPlayer(), this.card_text, read_along_timings );
@@ -1221,20 +1334,19 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 }
             }
         }
-
-        /**
-         * Inner class dedicated to updating the txtReadAlong TextView
-         * We need to access it from the same UI thread, so passing an instance
-         * of this to runOnUiThread does that for us.
-         */
-        class SetReadAlongColour extends Thread {
-            private SpannableStringBuilder spanny;
-            SetReadAlongColour(SpannableStringBuilder spanny) {
-                this.spanny = spanny;
-            }
-            public void run() {
-                txtReadAlong.setText(spanny ,TextView.BufferType.SPANNABLE);
-            }
+    }
+    /**
+     * Inner class dedicated to updating the txtReadAlong TextView
+     * We need to access it from the same UI thread, so passing an instance
+     * of this to runOnUiThread does that for us.
+     */
+    class SetReadAlongColour extends Thread {
+        private SpannableStringBuilder spanny;
+        SetReadAlongColour(SpannableStringBuilder spanny) {
+            this.spanny = spanny;
+        }
+        public void run() {
+            txtReadAlong.setText(spanny ,TextView.BufferType.SPANNABLE);
         }
     }
 }
