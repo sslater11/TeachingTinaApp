@@ -34,6 +34,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -786,8 +787,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 // Answer is correct
 
                 // Explosion of ticks celebration.
-                // Fucking love this, major thanks to the Leonids library!
-                AnimationExplodingTicks();
+                // I love this, major thanks to the Leonids library!
+                AnimationCelebration();
 
                 if (is_spelling_hint_enabled) {
                     // Mark it as wrong, so they have to attempt it again without the spelling hint.
@@ -807,8 +808,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 // Answer is wrong.
 
                 // Red crosses shooting out of the top of the screen.
-                // Fucking love this, major thanks to the Leonids library!
-                AnimationCrossesFalling();
+                // I love this, major thanks to the Leonids library!
+                AnimationFailed();
 
                 // Mark the card as wrong and stay on the current card.
                 // Set the hint to true so they can see the word.
@@ -823,20 +824,104 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 
 
-    public void AnimationExplodingTicks() {
-        // Explosion of ticks celebration.
-        // Fucking love this, major thanks to the Leonids library!
+    public void AnimationCelebration() {
+        // Randomly select an animation
+        final int NUM_OF_EFFECTS = 6;
+        int rand_num = ( (int)(Math.random() * 10) ) % NUM_OF_EFFECTS;
+        switch( rand_num ) {
+            case 0:
+                AnimationExplodingTicks();
+                break;
+            case 1:
+                AnimationExplodingStars();
+                break;
+            case 2:
+                AnimationExplodingTicksBottom();
+                break;
+            case 3:
+                AnimationExplodingStarsBottom();
+                break;
+            case 4:
+                AnimationTicksFloatingUpwardsGravity();
+                break;
+            case 5:
+                AnimationSpinningStarsFloatingUpwardsGravity();
+                break;
+        }
+    }
+
+    public void AnimationFailed() {
+        // Randomly select an animation
+        final int NUM_OF_EFFECTS = 2;
+        int rand_num = ( (int)(Math.random() * 10) ) % NUM_OF_EFFECTS;
+        switch( rand_num ) {
+            case 0:
+                AnimationCrossesFalling();
+                break;
+            case 1:
+                AnimationCrossesFallingShort();
+                break;
+        }
+    }
+
+    public void AnimationExplodingStars() {
         int num_of_particles = 10000;
-        int time_to_live = 10000;
+        int time_to_live = 1200;
+        new ParticleSystem(this, num_of_particles, R.drawable.star, time_to_live)
+                .setSpeedRange(0.20f, 1.0f)
+                .setScaleRange(0.10f, 1f)
+                //.oneShot(bt_show_answer, num_of_particles);
+                .emit(findViewById(R.id.flashcard_group_scroll_view), 75, 1000);
+    }
+
+    public void AnimationExplodingTicks() {
+        int num_of_particles = 10000;
+        int time_to_live = 1200;
+        new ParticleSystem(this, num_of_particles, R.drawable.answer_tick_small, time_to_live)
+                .setSpeedRange(0.10f, 1.0f)
+                .setScaleRange(0.10f, 1f)
+                .emit(findViewById(R.id.flashcard_group_scroll_view), 75, 1000);
+    }
+
+    public void AnimationExplodingTicksBottom() {
+        int num_of_particles = 5000;
+        int time_to_live = 5500;
         new ParticleSystem(this, num_of_particles, R.drawable.answer_tick_small, time_to_live)
                 .setSpeedRange(0.20f, 1.5f)
                 .setScaleRange(0.10f, 1f)
                 .oneShot(bt_show_answer, num_of_particles);
     }
 
+    public void AnimationExplodingStarsBottom() {
+        int num_of_particles = 4000;
+        int time_to_live = 2500;
+        new ParticleSystem(this, num_of_particles, R.drawable.star, time_to_live)
+                .setSpeedRange(0.20f, 0.5f)
+                .setScaleRange(0.30f, 1f)
+                .setFadeOut(500)
+                .setRotationSpeedRange(200, 400)
+                .oneShot(bt_show_answer, num_of_particles);
+    }
+
+    public void AnimationTicksFloatingUpwardsGravity() {
+        new ParticleSystem(this, 1000, R.drawable.answer_tick_small, 1000)
+                .setAcceleration(0.003f, 270)
+                .setScaleRange(0.10f, 1f)
+                .setSpeedByComponentsRange(0f, 0f, 0.0001f, 0.001f)
+                .setFadeOut(200, new AccelerateInterpolator())
+                .emitWithGravity(findViewById(R.id.flashcard_group_scroll_view), Gravity.NO_GRAVITY, 60, 2000);
+
+    }
+    public void AnimationSpinningStarsFloatingUpwardsGravity() {
+        new ParticleSystem(this, 1000, R.drawable.star, 1000)
+                .setAcceleration(0.003f, 270)
+                .setScaleRange(0.10f, 1f)
+                .setSpeedByComponentsRange(0f, 0f, 0.0001f, 0.001f)
+                .setRotationSpeedRange(300, 600)
+                .emitWithGravity(findViewById(R.id.flashcard_group_scroll_view), Gravity.NO_GRAVITY, 60, 2000);
+    }
+
     public void AnimationCrossesFalling() {
-        // Red crosses shooting out of the top of the screen.
-        // Fucking love this, major thanks to the Leonids library!
         ParticleSystem particle = new ParticleSystem(this, 200, R.drawable.answer_cross_medium, 2500);
         particle.setSpeedModuleAndAngleRange(0.3f, 0.8f, 35, 145);
         particle.setRotationSpeed(180);
@@ -844,8 +929,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 
     public void AnimationCrossesFallingShort() {
-        // Red crosses shooting out of the top of the screen.
-        // Fucking love this, major thanks to the Leonids library!
         ParticleSystem particle = new ParticleSystem(this, 200, R.drawable.answer_cross_medium, 2500);
         particle.setSpeedModuleAndAngleRange(0.3f, 0.8f, 35, 145);
         particle.setRotationSpeed(180);
@@ -863,7 +946,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         deck.nextQuestion(true, false);
         NextQuestion();
         updateCardsLeftToReview();
-        AnimationExplodingTicks();
+        AnimationCelebration();
     }
 
     @Override
@@ -876,7 +959,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         deck.nextQuestion(false, false);
         NextQuestion();
         updateCardsLeftToReview();
-        AnimationCrossesFalling();
+        AnimationFailed();
     }
 
     public boolean isLetterInButtonArray( ArrayList<Button> letter_buttons, char letter) {

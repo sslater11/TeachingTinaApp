@@ -56,3 +56,13 @@ If anyone is interested, I could upload a video on how to teach any of these thi
 
 I was going to teach Tina how to do larger addition like 19 + 38, but I haven't figured out how to explain how we use each column to indicate thousands, hundreds, tens, and units. That will probably be the next thing I tackle after finishing the reading lessons mode.
 I'm thinking maybe some sort of animation to show a number 10 after the number 9, to reinforce how the 1 is now one column to the left.
+
+# License
+GNU v2.0 only
+
+# Credits
+<img src="res/drawable/star.png" >
+
+Star image by OpenClipart-Vectors from [Pixabay.com](https://pixabay.com/vectors/star-favorite-yellow-icon-1292832/)
+
+
