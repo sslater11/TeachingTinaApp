@@ -70,7 +70,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     int MINIMUM_SPELLING_BUTTONS = 6;
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
     ReadingLessonDeck deck;
-    ArrayList<ReadingLessonCard> all_cards;
     int num_of_reviews_today;
     int num_of_new_cards;
     private final float USER_TEXT_FONT_SIZE = 72f;
@@ -114,16 +113,18 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
         sqlite_db_file = db_file.getParent() + File.separator + "ReadingLessons.db";
         sqlite_stats_db_file = db_file.getParent() + File.separator + "ReadingLessonStats.db";
-        loadCardsFromSQLiteDatabase();
+
+        ReadingLessonCardList all_cards;
+        all_cards = loadCardsFromSQLiteDatabase();
         // Open  the statistics logging database
         ReadingLessonStatisticsDBHandler stats_db_handler = new ReadingLessonStatisticsDBHandler( this, sqlite_stats_db_file, stats_db_version );
         reading_lesson_stats_database = stats_db_handler.getWritableDatabase();
 
         // Study cards to review first
-        deck = new ReadingLessonDeck( getCurrentReviewCards( all_cards ) );
+        deck = new ReadingLessonDeck( getCurrentReviewCards( all_cards ).getAllCards() );
         // If there were either no cards to review, or there's not many, learn some new ones.
         if( deck.size() <= 3 ) {
-            deck = new ReadingLessonDeck( getCurrentNewCards(all_cards) );
+            deck = new ReadingLessonDeck( getCurrentNewCards(all_cards).getAllCards() );
         }
 
         // Create the spelling hint button.
@@ -200,8 +201,8 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         this.txt_num_of_cards_to_reviews.setText( "Cards to review today: " + deck.countCardsLeftToStudy() );
     }
 
-    public void loadCardsFromSQLiteDatabase() {
-        ArrayList<ReadingLessonCard> reading_lesson_cards = new ArrayList<ReadingLessonCard>();
+    public ReadingLessonCardList loadCardsFromSQLiteDatabase() {
+        ReadingLessonCardList reading_lesson_cards = new ReadingLessonCardList();
         // Open the SQLite Database
         ReadingLessonDBHandler db_helper = new ReadingLessonDBHandler( this, sqlite_db_file, db_version );
         reading_lesson_database = db_helper.getReadableDatabase();
@@ -259,7 +260,7 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         cursor.close();
         reading_lesson_database.close();
 
-        all_cards = reading_lesson_cards;
+        return reading_lesson_cards;
     }
 
     /**
@@ -269,10 +270,10 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
      * @param deck
      * @return
      */
-    public ArrayList<ReadingLessonCard> getCurrentNewCards( ArrayList<ReadingLessonCard> deck) {
+    public ReadingLessonCardList getCurrentNewCards( ReadingLessonCardList deck) {
 
         // Scan through the deck.
-        ArrayList<ReadingLessonCard> results_deck = new ArrayList<ReadingLessonCard>();
+        ReadingLessonCardList results_deck = new ReadingLessonCardList();
         for( int i = 0; i < deck.size(); i++ ) {
 
             // Exit this loop if we've added too many cards already.
@@ -280,26 +281,34 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
                 break;
             }
 
+            // The rule for adding a new card.
+            // If a card's study date is == -1, then we can add it.
+            // If it is a sound and it has a linked card, add that linked card every time.
+            // If it is a word and it has a linked card, only add the linked card if the card date == -1.
+            // We don't want spelling and reading cards to be linked forever, only on the first showing.
+
+            ReadingLessonCard card = deck.getCardByIndex( i );
             // Check that we've not already added this card to the list.
-            if( ! isCardIDInList( deck.get(i).getCardID(), results_deck ) ) {
+            if( ! results_deck.isCardInList( card.getCardID() ) ) {
                 // New cards have a timestamp of -1.
-                if ( deck.get(i).getDateInMillis() == -1 ) {
-                    results_deck.add( deck.get(i) );
+                if ( card.getDateInMillis() == -1 ) {
+                    // Add our card to study it.
+                    results_deck.add( card );
 
                     // For every addition of a card, check if it's got a linked card, and see if we have added the linked card to the deck already.
-                    if ( deck.get(i).isASound() ) {
+                    if ( card.isASound() ) {
                         // If the linked card isn't in the results_deck already, add it.
-                        ReadingLessonCard linked_card = getCardFromListByCardID( deck.get(i).getIdOfLinkedCard(), deck );
-                        if ( linked_card != null ) {
+                        ReadingLessonCard linked_card = deck.getCardByID( card.getIdOfLinkedCard() );
+                        if ( linked_card != null && (! results_deck.isCardInList(linked_card.getCardID())) ) {
                             results_deck.add( linked_card );
                         }
                     }
-                    else if( deck.get(i).isAWord() ) {
+                    else if( card.isAWord() ) {
                         // If a card is a new word, add both reading and spelling cards to be learnt together.
 
                         // If the linked card isn't in the results_deck already, add it.
-                        ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
-                        if (linked_card != null) {
+                        ReadingLessonCard linked_card = deck.getCardByID( card.getIdOfLinkedCard() );
+                        if ( linked_card != null && (! results_deck.isCardInList(linked_card.getCardID())) ) {
                             results_deck.add( linked_card );
                         }
                     }
@@ -310,9 +319,9 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         return results_deck;
     }
 
-    public ArrayList<ReadingLessonCard> getCurrentReviewCards( ArrayList<ReadingLessonCard> deck ) {
+    public ReadingLessonCardList getCurrentReviewCards( ReadingLessonCardList deck ) {
         // Scan through the deck.
-        ArrayList<ReadingLessonCard> results_deck = new ArrayList<ReadingLessonCard>();
+        ReadingLessonCardList results_deck = new ReadingLessonCardList();
         for( int i = 0; i < deck.size(); i++ ) {
 
             // Exit this loop if we've added too many cards already.
@@ -322,29 +331,32 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
 
             // New cards have a timestamp of -1.
             // So skip adding those.
-            if ( (deck.get(i).getDateInMillis() != -1) && (deck.get(i).isReviewNeeded()) ) {
+            ReadingLessonCard card = deck.getCardByIndex( i );
+            if ( ( card.getDateInMillis() != -1) && (card.isReviewNeeded()) ) {
                 // Check that we've not already added this card to the list.
-                if ( !isCardIDInList(deck.get(i).getCardID(), results_deck) ) {
-                    if ( deck.get(i).isReviewNeeded() ) {
-                        results_deck.add( deck.get(i) );
+                if ( !results_deck.isCardInList( card.getCardID() ) ) {
+                    if ( card.isReviewNeeded() ) {
+                        // Add our card to study it.
+                        results_deck.add( card );
 
                         // For every addition of a card, check if it's got a linked card, and see if we have added the linked card to the deck already.
-                        if ( deck.get(i).isASound() ) {
+                        if ( deck.getCardByIndex(i).isASound() ) {
                             // If the linked card isn't in the results_deck already, add it.
-                            ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
-                            if ( linked_card != null ) {
-                                results_deck.add(linked_card);
+                            ReadingLessonCard linked_card = deck.getCardByID( card.getIdOfLinkedCard() );
+
+                            if ( linked_card != null && (! results_deck.isCardInList(linked_card.getCardID())) ) {
+                                results_deck.add( linked_card );
                             }
-                        } else if ( deck.get(i).isAWord() ) {
+                        } else if ( deck.getCardByIndex(i).isAWord() ) {
                             // If a card is a newly learnt word, add both reading and spelling cards to be learnt together.
                             // If the card is a review, don't add it, just review reading and spelling separately.
                             // We'll call it a review if the box_num is greater than 2.
                             // We'll call it a newly learnt word if the box_num is less than 2.
 
-                            if ( deck.get(i).getBoxNum() < 2 ) {
+                            if ( deck.getCardByIndex(i).getBoxNum() < 2 ) {
                                 // If the linked card isn't in the results_deck already, add it.
-                                ReadingLessonCard linked_card = getCardFromListByCardID(deck.get(i).getIdOfLinkedCard(), deck);
-                                if (linked_card != null) {
+                                ReadingLessonCard linked_card = deck.getCardByID( card.getIdOfLinkedCard() );
+                                if ( linked_card != null && (! results_deck.isCardInList(linked_card.getCardID())) ) {
                                     results_deck.add(linked_card);
                                 }
                             }
@@ -355,39 +367,6 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         }
 
         return results_deck;
-    }
-
-    /**
-     * Searches through the list for a card with the matching card_id, and returns it.
-     * @param card_id
-     * @param deck
-     * @return returns null if no card is found in the list. Returns a card if it matches the card_id passed.
-     */
-    public ReadingLessonCard getCardFromListByCardID( int card_id, ArrayList<ReadingLessonCard> deck ) {
-        // TODO:
-        // Turn this into a binary search to make it easier. Make sure list is ordered by card_id,
-        // it may not be as the code to add cards could add them out of order.
-        // This is why I'm using this inefficient loop, it's just easier for now.
-        for( int i = 0; i < deck.size(); i++ ) {
-            if( deck.get(i).getCardID() == card_id ) {
-                return deck.get(i);
-            }
-        }
-
-        return null;
-    }
-
-    public boolean isCardIDInList( int card_id, ArrayList<ReadingLessonCard> deck ) {
-        /**
-         * TODO: Make this a binary search, because if not, our program will be really slow as this is called often
-         */
-        for( int i = 0; i < deck.size(); i++ ) {
-            if( deck.get(i).getCardID() == card_id ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public void saveCardsToSQLiteDatabase( ArrayList<ReadingLessonCard> reading_lesson_cards ) {
@@ -1434,6 +1413,196 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
     }
 }
 
+/**
+ * Manages a list of ReadingLessonCard objects.
+ * Allowing us to insert and find a card by a binary search for efficiency.
+ */
+class ReadingLessonCardList {
+    ArrayList<ReadingLessonCard> all_cards;
+
+    ReadingLessonCardList() {
+        this.all_cards = new ArrayList<ReadingLessonCard>();
+    }
+
+    /**
+     * Add a card to the list. This is done using a binary search.
+     */
+    public void add( ReadingLessonCard card ) {
+        if( all_cards.size() == 0 ) {
+            all_cards.add( card );
+        } else {
+
+            // Find the correct location to insert in the array
+            // Using a binary search.
+            int index = findCardInsertionIndexByCardID( card.getCardID(), 0, all_cards.size() -1 );
+
+            // Add the card to the array
+            all_cards.add( index + 1, card );
+
+        }
+    }
+
+    /**
+     * Recursive binary search through the list to find whether the card is in the list..
+     * @param card_id
+     * @return
+     */
+    public boolean isCardInList( int target_card_id ) {
+        return __isCardInList( target_card_id, 0, all_cards.size() -1 );
+    }
+
+    /**
+     * Recursive binary search through the list to find whether the card is in the list.
+     * You must pass the last index, not the size of the array.
+     * e.g. [ a, b, c ] last index is 2. array size is 3.
+     * @param card_id
+     * @param start_index
+     * @param end_index
+     * @return
+     */
+    private boolean __isCardInList( int target_card_id, int start, int end  )  {
+        int left = start;
+        int right = end;
+
+        // Base cases
+        if( left > right ) {
+            return false;
+        }
+        else if( left == right ) {
+            if( target_card_id == all_cards.get(left).getCardID() ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else {
+
+            // search.
+            int middle_index = ( left + right ) / 2;
+            if( target_card_id < all_cards.get(middle_index).getCardID() ) {
+                right = middle_index - 1;
+                return __isCardInList(target_card_id, left, right);
+            }
+            else if( target_card_id > all_cards.get(middle_index).getCardID() ) {
+                left = middle_index + 1;
+                return __isCardInList(target_card_id, left, right);
+            } else {
+                // The target_card_id must be the same as the card at the middle_index.
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Recursive binary search through the list to find the correct location to insert a new card.
+     * @param card_id
+     * @param start_index
+     * @param end_index
+     * @return
+     */
+    public int findCardInsertionIndexByCardID( int target_card_id, int start, int end  )  {
+
+        int left = start;
+        int right = end;
+
+        // Base cases
+        if( left >= right ) {
+            if( left >= all_cards.size() ) {
+                return all_cards.size() - 1;
+            }
+
+            if( target_card_id == all_cards.get( left ).getCardID() ) {
+                return left;
+            }
+            else if( target_card_id < all_cards.get( left ).getCardID() ) {
+                return left -1;
+
+            }
+            else if( target_card_id > all_cards.get( left ).getCardID() ) {
+                return left;
+            }
+        }
+        else {
+
+            // search.
+            int middle_index = ( left + right ) / 2;
+            if( target_card_id < all_cards.get(middle_index).getCardID() ) {
+                right = middle_index - 1;
+                return findCardInsertionIndexByCardID(target_card_id, left, right);
+            }
+            else if( target_card_id > all_cards.get(middle_index).getCardID() ) {
+                left = middle_index + 1;
+                return findCardInsertionIndexByCardID(target_card_id, left, right);
+            } else {
+                return middle_index;
+            }
+        }
+
+        // Should never reach this statement.
+        return -1;
+    }
+
+    /**
+     * Binary search through the list and return the card with the card ID.
+     * Returns null if there is no card found.
+     * @param all_cards
+     * @param target_card_id
+     * @return
+     */
+    public static ReadingLessonCard getCardByID( ReadingLessonCardList all_cards, int target_card_id ) {
+        return __getCardByID( all_cards, target_card_id, 0, all_cards.getAllCards().size() );
+    }
+
+    /**
+     * Binary search through the list and return the card with the card ID.
+     * Returns null if there is no card found.
+     * @param all_cards
+     * @param target_card_id
+     * @return
+     */
+    public ReadingLessonCard getCardByID( int target_card_id ) {
+        return __getCardByID( this, target_card_id, 0, all_cards.size() );
+    }
+
+    /**
+     * Recursive binary search.
+     */
+    private static ReadingLessonCard __getCardByID( ReadingLessonCardList deck, int target_card_id, int left, int right ) {
+        // search.
+        if( left <= right ) {
+            int middle_index = ( left + right ) / 2;
+
+            if( middle_index < deck.getAllCards().size() ) {
+                int middle_card_id = deck.getAllCards().get(middle_index).getCardID();
+                if( target_card_id == middle_card_id ) {
+                    return deck.getAllCards().get(middle_index);
+                }
+                else if( target_card_id < middle_card_id ) {
+                    right = middle_index - 1;
+                    return __getCardByID( deck, target_card_id, left, right);
+                }
+                else if( target_card_id > middle_card_id ) {
+                    left = middle_index + 1;
+                    return __getCardByID( deck, target_card_id, left, right);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public ReadingLessonCard getCardByIndex( int index ) {
+        return all_cards.get( index );
+    }
+
+    public ArrayList<ReadingLessonCard> getAllCards() {
+        return this.all_cards;
+    }
+
+    public int size() {
+        return this.all_cards.size();
+    }
+}
 class Timings {
     public long start_in_millis;
     public long end_in_millis;

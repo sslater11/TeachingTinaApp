@@ -1,11 +1,94 @@
 My steps to get this up and running so far.
 ------------------------------------------
-make the isCardIDInList and getCardFromListByCardID work by using a binary search.
-Might need to make sure that t the list is in order.
+--done-- Make the app load linked sound cards together
+--done-- Make it load reading and spelling cards together, only once when first seen, then whenever
+--done-- make the isCardIDInList and getCardFromListByCardID work by using a binary search.
+--done-- test the new binary search works properly.
+	--done-- isCardInList() will need testing, to make sure I wrote the base case properly.
+
+
+
+
+Add the sound file "Spell the word...." to tina's app, so it plays before each word she has to spell.
+
+Add an alarm for tina to study twice a day.
+	make the settings dialog add a sound file and time.
+		add as many alarms as we want
+		add a checkbox to keep going off until she opens the app
+		or until she completes a flashcard and the app isn't open.
+
+
+
+
+Make a stats display page, so show how many cards she has seen today.
+Log the number of new cards seen today
+Log the number of failed cards today
+Log the number of reviews done today
+
+
+
+Make a read along timings for word pronunciations.
+
+
+Test the loading of flashcards.
+--done-- works as expected, loads newer cards -- See if after studying today, if we see the same cards again, we shouldn't.
+
+
 
 
 Make for tina a deck to teach her the difference between a letter's name and it's sound.
-	The cards should ask "what is th name of this letter: s" and "what sound does this letter make: s"
+	The cards should ask "what is the name of this letter: s" and "what sound does this letter make: s"
+
+Make a database media checker:
+	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
+
+	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
+		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
+
+	Allow font changes and capitalise and lower case the word/sentence, because if a card shows as 'll', is it 2 L or 2 I letters or even LI or IL?
+
+Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
+
+
+I think we should add a sound it out teaching mode. E.g. cat will say "cat. c. a. t. cat. ca. at. cat. ca. at. cat." and highlight each letter as it's being said.
+This will mean a lot more work for every sound.
+
+Record videos for pronouncing each sound that is tricky, and explaining how to teach someone this sound. E.g. 'TH' makes the same saound as an 'F', but it is not pronounced the same. TH is said using the tip of the tongue touching teeth. F is said by your top teeth touching the bottom lip. TH also has a second sound which is pronounced as thuh as in "thuh man was sitting down". We add a vibrating V sound to the TH.
+	So the video will show:
+		How to pronounce the sound
+		All the different sounds the letter pairs can have
+		How to say the different sounds too.
+
+
+say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
+	Will need to splice several audio files together cat.wav c.wav a.wav t.wav cat.wav.
+Also make a say it out loud bit for sounds
+	Say: "H E makes the sound :HEH
+	h.wav + e.wav + makes_the_sound.wav + he.wav
+	also highlight the letters as it's spoken.
+
+Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images, so I can release them for the public.
+
+Find that list of letter pairs that I made years ago, where I went through the whole dictionary to find each different sound each letter pair can make.
+
+Add a daily card count on the main menu screen.
+	Have a total count for each deck, displayed like anki, with new cards and reviews.
+	Have a total count underneath each deck.
+	Remember that tina has to study each deck x times as that's the only way to learn more than 3 cards. e.g. she learns 3 cards, then loads the deck again to load 3 more, and that's her daily limit reached.
+
+Add a speaking alarm that says "Tina, do your reading lesson". It should go off twice a day.
+
+
+
+-done- Tina's reading lesson creator:
+-done- Need to ask if we keep the capital letter for proper nouns.
+	-done- made all letter pairs lowercase.
+	-done- next, ask what words will be nouns
+	-done- make the media filename words lowercase.
+	-done- finally make sure tina's app will be able to play the audio file when the word is tapped in a sentence.
+-done- flashcard creator - After pressing save card, they move over to the completed section, even if we don't add any images to the words.
+-done- When making a sentence, the top banner say's "card missing media", even when we've added everything. Once we click save, this error goes away and it rightly say's "card completed"
+--done-- The reading lesson creator doesn't link sound cards.
 
 --done-- To load reading cards
 --done-- Scan through the database
@@ -65,15 +148,6 @@ Make for tina a deck to teach her the difference between a letter's name and it'
 --done-- -------------------------------------
 
 
-Make a database media checker:
-	This will be used after creating a reading lesson database file, it'll highlight missing images and audio files.
-
-	I also need to add a way to check if the 'click to hear the word' feature on sentence mode to see if it can find all the audio files.
-		The android code should be using the same sentence analyzer as the lesson generator, so it should link to the correct files.
-
-	Allow font changes and capitalise and lower case the word/sentence, because if a card shows as 'll', is it 2 L or 2 I letters or even LI or IL?
-
-Make sure that when learning the consonant vowel pairs, the two flashcards are seen together on the first try.
 
 
 
@@ -88,33 +162,6 @@ Make sure that when learning the consonant vowel pairs, the two flashcards are s
 - done - 		did she need the spelling hint?
 
 
-I think we should add a sound teaching mode. E.g. cat will say "cat. c. a. t. cat. ca. at. cat. ca. at. cat." and highlight each letter as it's being said.
-This will mean a lot more work for every sound.
-
-Record videos for pronouncing each sound that is tricky, and explaining how to teach someone this sound. E.g. 'TH' makes the same saound as an 'F', but it is not pronounced the same. TH is said using the tip of the tongue touching teeth. F is said by your top teeth touching the bottom lip. TH also has a second sound which is pronounced as thuh as in "thuh man was sitting down". We add a vibrating V sound to the TH.
-	So the video will show:
-		How to pronounce the sound
-		All the different sounds the letter pairs can have
-		How to say the different sounds too.
-
-
-say out loud "cat. c. a. t. cat.", showing it spelt on the screen, highlighting letters as it's said, and then they can try to answer again after it's been hidden.
-	Will need to splice several audio files together cat.wav c.wav a.wav t.wav cat.wav.
-Also make a say it out loud bit for sounds
-	Say: "H E makes the sound :HEH
-	h.wav + e.wav + makes_the_sound.wav + he.wav
-	also highlight the letters as it's spoken.
-
-Download some FOSS pictures for tina's bdpq lessons, and any other deck that has copywritten images, so I can release them for the public.
-
-Find that list of letter pairs that I made years ago, where I went through the whole dictionary to find each different sound each letter pair can make.
-
-Add a daily card count on the main menu screen.
-	Have a total count for each deck, displayed like anki, with new cards and reviews.
-	Have a total count underneath each deck.
-	Remember that tina has to study each deck x times as that's the only way to learn more than 3 cards. e.g. she learns 3 cards, then loads the deck again to load 3 more, and that's her daily limit reached.
-
-Add a speaking alarm that says "Tina, do your reading practice". It should go off twice a day.
 
 
 
