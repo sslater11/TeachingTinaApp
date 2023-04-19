@@ -34,6 +34,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -482,6 +483,18 @@ public class ReadingAndSpellingActivity extends FlashcardGroupActivity {
         else if( deck.getCurrentCard().isSpellingMode() ) {
             // Spelling mode.
             // It's spelling mode, so we need to completely change the layout to spelling mode.
+
+            // Remove these from their previous views, if they have them, because we want to add them to the new view later.
+            if ( clear_user_input.getParent() != null ) {
+                ((ViewGroup) clear_user_input.getParent()).removeView(clear_user_input);
+            }
+            if ( btn_spelling_hint.getParent() != null ) {
+                ((ViewGroup) btn_spelling_hint.getParent()).removeView(btn_spelling_hint);
+            }
+            if ( txtTyped.getParent() != null ) {
+                ((ViewGroup) txtTyped.getParent()).removeView(txtTyped);
+            }
+
             spelling_buttons = new ArrayList<Button>();
 
             // Get every letter in the word and make a button for it.
